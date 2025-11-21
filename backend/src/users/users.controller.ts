@@ -1,5 +1,5 @@
 // backend/src/users/users.controller.ts
-import { Controller, Post, Body, UseGuards, Request, Get, Param } from '@nestjs/common';
+import { Controller, Post, Body, Get, Request } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { LinkPatientDto } from './users.dto';
 
@@ -9,6 +9,7 @@ export class UsersController {
 
     @Post('link-patient')
     async linkPatient(@Body() linkPatientDto: LinkPatientDto, @Request() req: any) {
+        // ID 1 es temporal para pruebas
         const caregiverId = 1;
         return this.usersService.linkPatient(caregiverId, linkPatientDto);
     }

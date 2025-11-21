@@ -43,6 +43,7 @@ export class AuthService {
             try {
                 await this.usersService.linkPatient(savedUser.id, { patientCode: patientCodeToLink });
             } catch (error) {
+                // Solo loguea la advertencia si falla la vinculación inicial
                 console.warn(`Cuidador ${name} registrado, pero el código de paciente ${patientCodeToLink} no fue válido.`);
             }
         }
