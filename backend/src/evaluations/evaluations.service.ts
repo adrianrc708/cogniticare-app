@@ -1,6 +1,6 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, MoreThanOrEqual } from 'typeorm'; // Importar MoreThanOrEqual
 import { Question } from './question.entity';
 import { EvaluationResult } from './evaluation-result.entity';
 
@@ -15,7 +15,7 @@ export class EvaluationsService implements OnModuleInit {
         private resultRepository: Repository<EvaluationResult>,
     ) {}
 
-    // Se ejecuta automáticamente al arrancar el backend
+    // Se ejecuta automáticamente al arrancar el backend para sembrar datos
     async onModuleInit() {
         await this.seedQuestions();
     }
@@ -43,8 +43,24 @@ export class EvaluationsService implements OnModuleInit {
         this.logger.log('¡Preguntas insertadas correctamente!');
     }
 
-    async getRandomQuestions(limit: number = 5): Promise<Question[]> {
-        // Obtiene preguntas aleatorias usando SQL nativo (RAND() para MySQL)
+    async getRandomQuestions(patientId: number, limit: number = 10): Promise<Question[]> {
+        // 1. Verificar si ya jugó hoy (regla de 1 vez al día)
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+
+        const playedToday = await this.resultRepository.count({
+            where: {
+                patientId: patientId,
+                completedAt: MoreThanOrEqual(todayStart)
+            }
+        });
+
+        if (playedToday > 0) {
+            // Lanzamos un error que el controlador capturará y enviará al frontend
+            throw new BadRequestException('Ya has completado tu evaluación diaria. Vuelve mañana.');
+        }
+
+        // 2. Si no ha jugado, obtener preguntas aleatorias
         return this.questionRepository
             .createQueryBuilder('question')
             .orderBy('RAND()')
@@ -61,10 +77,27 @@ export class EvaluationsService implements OnModuleInit {
         return this.resultRepository.save(result);
     }
 
-    async getPatientHistory(patientId: number) {
+    // Historial para el Paciente (Solo mes actual, reinicia cada mes)
+    async getMonthlyHistory(patientId: number) {
+        const now = new Date();
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        return this.resultRepository.find({
+            where: {
+                patientId,
+                completedAt: MoreThanOrEqual(firstDayOfMonth)
+            },
+            order: { completedAt: 'ASC' },
+            select: ['score', 'totalQuestions', 'completedAt']
+        });
+    }
+
+    // Historial para el Cuidador (Todo el historial, acumulativo)
+    async getAllHistory(patientId: number) {
         return this.resultRepository.find({
             where: { patientId },
-            order: { completedAt: 'DESC' }
+            order: { completedAt: 'ASC' },
+            select: ['score', 'totalQuestions', 'completedAt']
         });
     }
 }
