@@ -3,14 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
+import { EvaluationsModule } from './evaluations/evaluations.module'; // IMPORTAR
 import { User } from './db/user.entity';
+import { Question } from './evaluations/question.entity'; // IMPORTAR
+import { EvaluationResult } from './evaluations/evaluation-result.entity'; // IMPORTAR
 
 @Module({
     imports: [
-        // Carga variables de entorno
         ConfigModule.forRoot({ isGlobal: true }),
-
-        // Configuración de Conexión a MySQL
         TypeOrmModule.forRoot({
             type: 'mysql',
             host: process.env.DB_HOST,
@@ -18,16 +18,12 @@ import { User } from './db/user.entity';
             username: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_DATABASE,
-            entities: [User], // Registra la entidad User
-            synchronize: true, // Sincroniza el esquema automáticamente (¡Solo para desarrollo!)
+            entities: [User, Question, EvaluationResult], // AÑADIR AQUÍ
+            synchronize: true,
         }),
-
-        // Módulos de la Aplicación
         UsersModule,
         AuthModule,
-        // Aquí irán EvaluacionesModule y RemindersModule
+        EvaluationsModule, // AÑADIR AQUÍ
     ],
-    controllers: [],
-    providers: [],
 })
 export class AppModule {}
