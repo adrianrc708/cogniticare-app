@@ -7,8 +7,10 @@ CREATE TABLE users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    password VARCHAR(255) NOT NULL, -- La contraseña DEBE ser hasheada
-    role ENUM('patient', 'carer') NOT NULL DEFAULT 'patient',
+    password VARCHAR(255) NOT NULL,
+    -- CORREGIDO: Cambiado 'carer' por 'caregiver' para coincidir con el código
+    role ENUM('patient', 'caregiver') NOT NULL DEFAULT 'patient', 
+    patientCode VARCHAR(255) UNIQUE NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
