@@ -10,6 +10,8 @@ const RegisterPage: React.FC<RegisterProps> = ({ onRegisterSuccess, onSwitchToLo
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    // Por defecto paciente, pero se cambia con los botones
+    const [role, setRole] = useState<'patient' | 'caregiver'>('patient');
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
@@ -21,99 +23,72 @@ const RegisterPage: React.FC<RegisterProps> = ({ onRegisterSuccess, onSwitchToLo
         setLoading(true);
 
         try {
-            // Llamada a la API de NestJS
-            const response = await axios.post(API_URL, { name, email, password });
-
-            setMessage(response.data.message || 'Registro exitoso. Inicia sesión.');
-
-            // Limpiar y redirigir al login
-            setName('');
-            setEmail('');
-            setPassword('');
+            await axios.post(API_URL, { name, email, password, role });
             onRegisterSuccess();
-
-        } catch (error) {
-            if (axios.isAxiosError(error) && error.response) {
-                // Manejo de errores de NestJS (ej. 409 Conflict, 400 Bad Request)
-                const errorMessage = error.response.data.message || 'Error al registrar el usuario.';
-                setMessage(`Error: ${Array.isArray(errorMessage) ? errorMessage.join(', ') : errorMessage}`);
-            } else {
-                setMessage('Error de conexión con el servidor. Verifica que el backend esté corriendo en el puerto 3000.');
-            }
+        } catch (error: any) {
+            const errorMessage = error.response?.data?.message || 'Error al registrar.';
+            setMessage(`Error: ${Array.isArray(errorMessage) ? errorMessage.join(', ') : errorMessage}`);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-            <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-2xl border-t-4 border-blue-500">
-                <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-6">
-                    Crear Cuenta <span className="text-blue-500">CogniCare</span>
-                </h2>
+        <div className="flex items-center justify-center min-h-screen bg-gray-50 p-4">
+            <div className="w-full max-w-md bg-white p-8 rounded-xl shadow-lg">
+                <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">Crear Cuenta</h2>
 
-                {message && (
-                    <div className={`p-3 mb-4 rounded-lg text-sm font-medium ${message.startsWith('Error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
-                        {message}
-                    </div>
-                )}
+                {/* Selector de Rol Visual */}
+                <div className="flex gap-4 mb-6">
+                    <button
+                        type="button"
+                        onClick={() => setRole('patient')}
+                        className={`flex-1 p-4 rounded-lg border-2 transition-all ${
+                            role === 'patient'
+                                ? 'border-teal-500 bg-teal-50 text-teal-700 font-bold'
+                                : 'border-gray-200 text-gray-500 hover:border-teal-200'
+                        }`}
+                    >
+                        Soy Paciente
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => setRole('caregiver')}
+                        className={`flex-1 p-4 rounded-lg border-2 transition-all ${
+                            role === 'caregiver'
+                                ? 'border-blue-500 bg-blue-50 text-blue-700 font-bold'
+                                : 'border-gray-200 text-gray-500 hover:border-blue-200'
+                        }`}
+                    >
+                        Soy Cuidador
+                    </button>
+                </div>
 
-                <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">Nombre</label>
-                        <input
-                            id="name"
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">Correo Electrónico</label>
-                        <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                    </div>
-                    <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">Contraseña</label>
-                        <input
-                            id="password"
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            minLength={6}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                        />
-                    </div>
+                {message && <div className="mb-4 p-3 bg-red-100 text-red-700 rounded text-sm">{message}</div>}
+
+                <form onSubmit={handleSubmit} className="space-y-4">
+                    <input
+                        type="text" placeholder="Nombre completo" value={name} onChange={(e) => setName(e.target.value)} required
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
+                    />
+                    <input
+                        type="email" placeholder="Correo electrónico" value={email} onChange={(e) => setEmail(e.target.value)} required
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
+                    />
+                    <input
+                        type="password" placeholder="Contraseña (min 6 caracteres)" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6}
+                        className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
+                    />
 
                     <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 transition duration-150"
+                        type="submit" disabled={loading}
+                        className={`w-full py-3 text-white font-bold rounded-lg transition-colors ${role === 'patient' ? 'bg-teal-600 hover:bg-teal-700' : 'bg-blue-600 hover:bg-blue-700'}`}
                     >
-                        {loading ? 'Registrando...' : 'Registrarse'}
+                        {loading ? 'Creando cuenta...' : 'Registrarse'}
                     </button>
                 </form>
-
-                <div className="mt-6 text-center">
-                    <p className="text-sm text-gray-600">
-                        ¿Ya tienes cuenta?{' '}
-                        <button
-                            type="button"
-                            onClick={onSwitchToLogin}
-                            className="font-medium text-blue-600 hover:text-blue-500 focus:outline-none"
-                        >
-                            Inicia Sesión aquí.
-                        </button>
-                    </p>
+                <div className="mt-4 text-center text-sm text-gray-600">
+                    ¿Ya tienes cuenta? <button onClick={onSwitchToLogin} className="text-teal-600 font-bold">Inicia sesión</button>
                 </div>
             </div>
         </div>

@@ -69,4 +69,10 @@ export class UsersService {
             email: p.email,
         } as User));
     }
+
+    async getUserProfile(userId: number): Promise<User> {
+        return this.userRepository.findOne({
+            where: { id: userId }
+        });
+    }
 }
