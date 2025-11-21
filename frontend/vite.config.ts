@@ -4,8 +4,8 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
     plugins: [react()],
     server: {
-        // Asegura que Vite se pueda acceder desde otras IPs si es necesario
-        host: '0.0.0.0',
-        port: 5173,
+        // Cambiado de '0.0.0.0' a '127.0.0.1' y cambiado el puerto a 5174.
+        host: '127.0.0.1',
+        port: 5174,
     }
 });
