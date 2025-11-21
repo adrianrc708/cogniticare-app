@@ -3,26 +3,23 @@ import axios from 'axios';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-interface Patient {
-    id: number;
-    name: string;
-}
-
 interface Reminder {
     id: number;
     title: string;
     description: string;
     scheduledTime: string;
     patientAcknowledged: boolean;
-    patient: Patient;
+    patientId: number;
 }
 
-const CaregiverReminders: React.FC<{ onBack: () => void }> = ({ onBack }) => {
-    const [reminders, setReminders] = useState<Reminder[]>([]);
-    const [patients, setPatients] = useState<Patient[]>([]);
+interface Props {
+    patientId: number;
+    patientName: string;
+    onBack: () => void;
+}
 
-    // Formulario
-    const [selectedPatientId, setSelectedPatientId] = useState('');
+const CaregiverReminders: React.FC<Props> = ({ patientId, patientName, onBack }) => {
+    const [reminders, setReminders] = useState<Reminder[]>([]);
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [date, setDate] = useState('');
@@ -30,38 +27,35 @@ const CaregiverReminders: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        loadData();
-    }, []);
+        loadReminders();
+    }, [patientId]);
 
-    const loadData = async () => {
+    const loadReminders = async () => {
         try {
-            const [pRes, rRes] = await Promise.all([
-                axios.get('http://localhost:3000/users/patients'),
-                axios.get('http://localhost:3000/reminders/caregiver')
-            ]);
-            setPatients(pRes.data);
-            setReminders(rRes.data);
+            // Obtenemos todos y filtramos en el cliente por simplicidad
+            // (Idealmente el backend tendría un filtro por pacienteId para el cuidador)
+            const res = await axios.get('http://localhost:3000/reminders/caregiver');
+            const patientReminders = res.data.filter((r: any) => r.patient.id === patientId);
+            setReminders(patientReminders);
         } catch (e) { console.error(e); }
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!selectedPatientId || !title || !date || !time) return;
+        if (!title || !date || !time) return;
 
         setLoading(true);
         const scheduledTime = new Date(`${date}T${time}`);
 
         try {
             await axios.post('http://localhost:3000/reminders', {
-                patientId: parseInt(selectedPatientId),
+                patientId, // Usamos el ID que viene por props
                 title,
                 description,
                 scheduledTime
             });
-            // Limpiar y recargar
             setTitle(''); setDescription(''); setDate(''); setTime('');
-            loadData();
-            alert('Recordatorio programado con éxito');
+            loadReminders();
         } catch (e) {
             alert('Error al crear recordatorio');
         } finally {
@@ -73,94 +67,83 @@ const CaregiverReminders: React.FC<{ onBack: () => void }> = ({ onBack }) => {
         if (!confirm('¿Eliminar este recordatorio?')) return;
         try {
             await axios.delete(`http://localhost:3000/reminders/${id}`);
-            loadData();
+            loadReminders();
         } catch (e) { alert('Error al eliminar'); }
     };
 
     return (
-        <div className="max-w-6xl mx-auto bg-white p-6 rounded-xl shadow-md">
-            <div className="flex items-center mb-6">
-                <button onClick={onBack} className="text-gray-500 hover:text-gray-700 mr-4 text-2xl">←</button>
-                <h2 className="text-2xl font-bold text-gray-800">Gestión de Recordatorios</h2>
+        <div className="max-w-5xl mx-auto bg-white p-6 rounded-xl shadow-md">
+            <div className="flex items-center mb-6 border-b pb-4">
+                <button onClick={onBack} className="text-gray-500 hover:text-teal-600 mr-4 text-2xl transition">←</button>
+                <div>
+                    <h2 className="text-2xl font-bold text-gray-800">Recordatorios para {patientName}</h2>
+                    <p className="text-sm text-gray-500">Gestiona alertas de medicamentos y citas</p>
+                </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Formulario de Creación */}
-                <div className="lg:col-span-1 bg-blue-50 p-6 rounded-xl h-fit">
-                    <h3 className="text-lg font-bold text-blue-800 mb-4">Nuevo Recordatorio</h3>
+                {/* Formulario */}
+                <div className="lg:col-span-1 bg-blue-50 p-6 rounded-xl h-fit border border-blue-100">
+                    <h3 className="text-lg font-bold text-blue-800 mb-4">Nueva Alerta</h3>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Paciente</label>
-                            <select
-                                value={selectedPatientId}
-                                onChange={(e) => setSelectedPatientId(e.target.value)}
-                                className="w-full border p-2 rounded"
-                                required
-                            >
-                                <option value="">Seleccionar...</option>
-                                {patients.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">Título</label>
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Título</label>
                             <input
-                                type="text" placeholder="Ej: Tomar pastilla azul"
+                                type="text" placeholder="Ej: Pastilla Presión"
                                 value={title} onChange={(e) => setTitle(e.target.value)}
-                                className="w-full border p-2 rounded" required
+                                className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-300 outline-none" required
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700">Descripción (Opcional)</label>
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Detalles</label>
                             <textarea
-                                placeholder="Detalles..."
+                                placeholder="Ej: Tomar con agua..."
                                 value={description} onChange={(e) => setDescription(e.target.value)}
-                                className="w-full border p-2 rounded"
+                                className="w-full border p-2 rounded focus:ring-2 focus:ring-blue-300 outline-none h-20"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-2">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Fecha</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Fecha</label>
                                 <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="w-full border p-2 rounded" required />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700">Hora</label>
+                                <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Hora</label>
                                 <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="w-full border p-2 rounded" required />
                             </div>
                         </div>
-                        <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-bold">
-                            {loading ? 'Guardando...' : 'Programar'}
+                        <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 font-bold transition shadow">
+                            {loading ? 'Guardando...' : 'Programar Alerta'}
                         </button>
                     </form>
                 </div>
 
-                {/* Lista de Recordatorios */}
+                {/* Lista */}
                 <div className="lg:col-span-2">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4">Historial de Alertas</h3>
-                    <div className="space-y-4">
+                    <h3 className="text-lg font-bold text-gray-800 mb-4">Alertas Programadas</h3>
+                    <div className="space-y-3">
                         {reminders.length === 0 ? (
-                            <p className="text-gray-500 text-center py-8">No hay recordatorios creados.</p>
+                            <div className="text-gray-400 text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed">
+                                No hay alertas activas para este paciente.
+                            </div>
                         ) : (
                             reminders.map(r => (
-                                <div key={r.id} className={`p-4 rounded-lg border flex justify-between items-center ${r.patientAcknowledged ? 'bg-green-50 border-green-200' : 'bg-yellow-50 border-yellow-200'}`}>
+                                <div key={r.id} className={`p-4 rounded-lg border flex justify-between items-start transition hover:shadow-md ${r.patientAcknowledged ? 'bg-green-50 border-green-200' : 'bg-white border-gray-200'}`}>
                                     <div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-bold text-gray-800">{r.title}</span>
-                                            <span className="text-xs bg-gray-200 px-2 py-0.5 rounded text-gray-600">para {r.patient?.name}</span>
+                                        <h4 className="font-bold text-gray-800 text-lg">{r.title}</h4>
+                                        <p className="text-sm text-gray-600 mb-2">{r.description}</p>
+                                        <div className="flex items-center gap-2 text-xs text-gray-500">
+                                            <span>📅 {format(new Date(r.scheduledTime), 'dd/MM/yyyy', { locale: es })}</span>
+                                            <span>🕒 {format(new Date(r.scheduledTime), 'HH:mm', { locale: es })}</span>
                                         </div>
-                                        <p className="text-sm text-gray-600">{r.description}</p>
-                                        <p className="text-xs text-gray-500 mt-1">
-                                            Programado: {format(new Date(r.scheduledTime), 'dd/MM/yyyy HH:mm', { locale: es })}
-                                        </p>
                                     </div>
                                     <div className="flex flex-col items-end gap-2">
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${r.patientAcknowledged ? 'bg-green-200 text-green-800' : 'bg-yellow-200 text-yellow-800'}`}>
-                                            {r.patientAcknowledged ? 'VISTO ✅' : 'PENDIENTE ⏳'}
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${r.patientAcknowledged ? 'bg-green-100 text-green-700 border-green-200' : 'bg-yellow-100 text-yellow-700 border-yellow-200'}`}>
+                                            {r.patientAcknowledged ? 'CONFIRMADO' : 'PENDIENTE'}
                                         </span>
-                                        {r.patientAcknowledged && (
-                                            <button onClick={() => handleDelete(r.id)} className="text-red-500 text-xs hover:underline">
-                                                Eliminar
-                                            </button>
-                                        )}
+                                        <button onClick={() => handleDelete(r.id)} className="text-red-400 text-xs hover:text-red-600 hover:underline mt-1">
+                                            Eliminar
+                                        </button>
                                     </div>
                                 </div>
                             ))
