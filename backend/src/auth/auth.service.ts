@@ -1,64 +1,86 @@
-import { Injectable, UnauthorizedException, ConflictException } from '@nestjs/common';
+// backend/src/auth/auth.service.ts
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { JwtService } from '@nestjs/jwt';
+import { RegisterDto, LoginDto } from './auth.dto';
 import { User } from '../db/user.entity';
 import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
-import { AuthCredentialsDto, RegisterDto } from './auth.dto';
+import { UserRole } from '../db/user-role.enum';
+import { v4 as uuidv4 } from 'uuid';
+import { UsersService } from '../users/users.service'; // <-- CAMBIO AÑADIDO
 
 @Injectable()
 export class AuthService {
     constructor(
         @InjectRepository(User)
-        private usersRepository: Repository<User>,
+        private userRepository: Repository<User>,
         private jwtService: JwtService,
+        private usersService: UsersService, // <-- CAMBIO AÑADIDO
     ) {}
 
-    // --- REGISTRO ---
-    async signUp(registerDto: RegisterDto): Promise<void> {
-        const { name, email, password } = registerDto;
+    async register(registerDto: RegisterDto): Promise<{ token: string; user: User }> {
+        const { name, email, password, role, patientCodeToLink } = registerDto;
 
-        // 1. Verificar si el usuario ya existe
-        const existingUser = await this.usersRepository.findOne({ where: { email } });
+        const existingUser = await this.userRepository.findOne({ where: { email } });
         if (existingUser) {
-            throw new ConflictException('El correo electrónico ya está registrado.');
+            throw new HttpException('El correo electrónico ya está registrado', HttpStatus.CONFLICT);
         }
 
-        // 2. Hashear la contraseña
-        const salt = await bcrypt.genSalt();
-        const hashedPassword = await bcrypt.hash(password, salt);
+        const newUser = new User();
+        newUser.name = name;
+        newUser.email = email;
+        newUser.password = password;
+        newUser.role = role;
 
-        // 3. Crear y guardar el nuevo usuario
-        const user = this.usersRepository.create({
-            name,
-            email,
-            password: hashedPassword,
-            role: 'patient', // Por defecto, es un paciente
+        if (role === UserRole.PATIENT) {
+            newUser.patientCode = uuidv4().substring(0, 8).toUpperCase();
+        }
+
+        let savedUser = await this.userRepository.save(newUser);
+
+        if (role === UserRole.CAREGIVER && patientCodeToLink) {
+            try {
+                await this.usersService.linkPatient(savedUser.id, { patientCode: patientCodeToLink });
+            } catch (error) {
+                console.warn(`Cuidador ${name} registrado, pero el código de paciente ${patientCodeToLink} no fue válido.`);
+            }
+        }
+
+        const token = this.jwtService.sign({
+            id: savedUser.id,
+            email: savedUser.email,
+            role: savedUser.role,
         });
 
-        try {
-            await this.usersRepository.save(user);
-        } catch (error) {
-            throw new Error('Error al guardar el usuario en la base de datos.');
-        }
+        delete savedUser.password;
+
+        return { token, user: savedUser };
     }
 
-    // --- LOGIN ---
-    async signIn(authCredentialsDto: AuthCredentialsDto): Promise<{ accessToken: string }> {
-        const { email, password } = authCredentialsDto;
+    async login(loginDto: LoginDto): Promise<{ token: string; user: User }> {
+        const { email, password } = loginDto;
 
-        // 1. Buscar usuario por email
-        const user = await this.usersRepository.findOne({ where: { email } });
+        const user = await this.userRepository.findOne({ where: { email } });
 
-        if (user && (await bcrypt.compare(password, user.password))) {
-            // 2. Contraseña correcta, generar JWT
-            const payload = { email: user.email, sub: user.id, role: user.role };
-            const accessToken: string = await this.jwtService.signAsync(payload);
-
-            return { accessToken };
-        } else {
-            // 3. Email o contraseña incorrectos
-            throw new UnauthorizedException('Por favor, verifica tus credenciales.');
+        if (!user) {
+            throw new HttpException('Credenciales inválidas', HttpStatus.UNAUTHORIZED);
         }
+
+        const isPasswordMatching = await bcrypt.compare(password, user.password);
+
+        if (!isPasswordMatching) {
+            throw new HttpException('Credenciales inválidas', HttpStatus.UNAUTHORIZED);
+        }
+
+        const token = this.jwtService.sign({
+            id: user.id,
+            email: user.email,
+            role: user.role,
+        });
+
+        delete user.password;
+
+        return { token, user };
     }
 }

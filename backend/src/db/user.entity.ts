@@ -1,22 +1,67 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    BeforeInsert,
+    BeforeUpdate,
+    OneToMany, // Importar OneToMany
+    ManyToMany, // Importar ManyToMany
+    JoinTable, // Importar JoinTable
+} from 'typeorm';
+import * as bcrypt from 'bcrypt';
+import { UserRole } from './user-role.enum'; // <-- Importar el nuevo enum
 
 @Entity('users')
 export class User {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ length: 255 })
+    @Column()
     name: string;
 
-    @Column({ length: 255, unique: true })
+    @Column({ unique: true })
     email: string;
 
-    @Column({ length: 255 })
-    password: string; // Hasheada con bcrypt
+    @Column()
+    password?: string;
 
-    @Column({ type: 'enum', enum: ['patient', 'carer'], default: 'patient' })
-    role: 'patient' | 'carer';
+    // Nuevo campo para el rol
+    @Column({
+        type: 'enum',
+        enum: UserRole,
+        default: UserRole.PATIENT
+    })
+    role: UserRole;
 
-    @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-    createdAt: Date;
+    // Nuevo campo para el código de vinculación (solo para pacientes)
+    @Column({ unique: true, nullable: true })
+    patientCode: string;
+
+    // Relación Many-to-Many: Cuidador a Paciente
+    @ManyToMany(() => User, user => user.caregivers)
+    @JoinTable({
+        name: 'caregiver_patient', // Nombre de la tabla de unión
+        joinColumn: {
+            name: 'caregiverId',
+            referencedColumnName: 'id',
+        },
+        inverseJoinColumn: {
+            name: 'patientId',
+            referencedColumnName: 'id',
+        },
+    })
+    patients: User[];
+
+    // Relación Many-to-Many (Inversa): Paciente a Cuidador
+    @ManyToMany(() => User, user => user.patients)
+    caregivers: User[];
+
+    // ... (Mantener las funciones BeforeInsert/BeforeUpdate para hashing)
+    @BeforeInsert()
+    @BeforeUpdate()
+    async hashPassword() {
+        if (this.password) {
+            this.password = await bcrypt.hash(this.password, 10);
+        }
+    }
 }
