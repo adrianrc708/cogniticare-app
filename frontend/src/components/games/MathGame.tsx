@@ -1,59 +1,50 @@
 import React, { useState } from 'react';
 
 const MathGame: React.FC<{ onExit: () => void }> = ({ onExit }) => {
-    const [num1, setNum1] = useState(Math.floor(Math.random() * 10) + 1);
-    const [num2, setNum2] = useState(Math.floor(Math.random() * 10) + 1);
+    const [num1, setNum1] = useState(5);
+    const [num2, setNum2] = useState(3);
     const [score, setScore] = useState(0);
     const [feedback, setFeedback] = useState('');
 
-    const generateProblem = () => {
+    const nextProblem = () => {
         setNum1(Math.floor(Math.random() * 10) + 1);
         setNum2(Math.floor(Math.random() * 10) + 1);
         setFeedback('');
     };
 
-    const checkAnswer = (ans: number) => {
+    const check = (ans: number) => {
         if (ans === num1 + num2) {
-            setScore(score + 1);
+            setScore(s => s + 1);
             setFeedback('Correcto');
-            setTimeout(generateProblem, 500);
-        } else {
-            setFeedback('Incorrecto, intenta de nuevo');
-        }
+            setTimeout(nextProblem, 500);
+        } else setFeedback('Intenta de nuevo');
     };
 
-    // Generar opciones (1 correcta, 2 incorrectas)
-    const correctAnswer = num1 + num2;
-    const options = [correctAnswer, correctAnswer + 1, correctAnswer - 1]
-        .sort(() => Math.random() - 0.5);
+    const correct = num1 + num2;
+    const opts = [correct, correct + 1, correct - 1].sort(() => Math.random() - 0.5);
 
     return (
-        <div className="flex flex-col items-center">
-            <div className="flex justify-between w-full max-w-md mb-6 items-center">
-                <h2 className="text-2xl font-bold text-orange-700">Cálculo Rápido</h2>
-                <button onClick={onExit} className="text-red-500 font-bold">Salir</button>
+        <div className="max-w-xl mx-auto px-4 pt-8 pb-10 text-center">
+            <div className="flex justify-between items-center mb-10">
+                <h2 className="text-3xl font-black text-orange-700 dark:text-orange-400">Cálculo</h2>
+                <button onClick={onExit} className="bg-red-100 text-red-600 px-5 py-2 rounded-xl font-bold">Salir</button>
             </div>
 
-            <div className="bg-orange-100 p-8 rounded-2xl shadow-inner mb-8">
-                <span className="text-6xl font-bold text-orange-800">{num1} + {num2} = ?</span>
+            <div className="bg-orange-50 dark:bg-orange-900/20 p-12 rounded-[3rem] shadow-lg mb-10 border-2 border-orange-100 dark:border-orange-800">
+                <span className="text-7xl font-black text-orange-800 dark:text-orange-200">{num1} + {num2} = ?</span>
             </div>
 
-            <div className="flex gap-4">
-                {options.map((opt, i) => (
-                    <button
-                        key={i}
-                        onClick={() => checkAnswer(opt)}
-                        className="w-20 h-20 bg-white border-2 border-orange-300 rounded-full text-2xl font-bold text-gray-700 hover:bg-orange-200 transition"
-                    >
+            <div className="flex gap-6 justify-center mb-8">
+                {opts.map((opt, i) => (
+                    <button key={i} onClick={() => check(opt)} className="w-24 h-24 bg-white dark:bg-gray-700 border-b-8 border-gray-200 dark:border-gray-900 rounded-3xl text-4xl font-bold text-gray-700 dark:text-white hover:bg-orange-100 dark:hover:bg-gray-600 transition-all active:border-b-0 active:translate-y-2">
                         {opt}
                     </button>
                 ))}
             </div>
 
-            <p className="mt-6 text-lg h-6 text-gray-500">{feedback}</p>
-            <p className="mt-2 text-sm text-gray-400">Puntaje: {score}</p>
+            <p className="text-2xl font-bold text-gray-500 dark:text-gray-400 h-8">{feedback}</p>
+            <p className="mt-4 text-lg text-gray-400">Puntaje: {score}</p>
         </div>
     );
 };
-
 export default MathGame;
