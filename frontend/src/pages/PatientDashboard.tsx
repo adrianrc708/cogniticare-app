@@ -8,21 +8,38 @@ import NewsView from '../components/news/NewsView';
 import ContactsView from '../components/settings/ContactsView';
 import SettingsView from '../components/settings/SettingsView';
 import ChatWindow from '../components/chat/ChatWindow';
+import Modal from '../components/ui/Modal'; // Importamos el Modal
 import { useTheme } from '../context/ThemeContext';
 import axios from 'axios';
 import { format } from 'date-fns';
-// IMPORTANTE: Agregar enUS para el inglés
 import { es, enUS } from 'date-fns/locale';
 
 const PatientDashboard: React.FC<{ user: any, onLogout: () => void }> = ({ user, onLogout }) => {
     const [view, setView] = useState<'menu' | 'evaluation' | 'games' | 'history' | 'reminders' | 'news' | 'contact' | 'settings'>('menu');
     const [activeChat, setActiveChat] = useState<{id: number, name: string} | null>(null);
-    const { t, language } = useTheme(); // Obtenemos el idioma actual
+    const { t, language } = useTheme();
 
-    const handleLogoutConfirm = () => {
-        if (window.confirm(t('confirm_logout'))) {
-            onLogout();
-        }
+    // Estados para el Modal
+    const [modalConfig, setModalConfig] = useState<{
+        isOpen: boolean;
+        type: 'danger' | 'info' | 'success' | 'warning';
+        title: string;
+        message: string;
+        onConfirm?: () => void;
+        singleButton?: boolean;
+    }>({ isOpen: false, type: 'info', title: '', message: '' });
+
+    const openModal = (config: any) => setModalConfig({ ...config, isOpen: true });
+    const closeModal = () => setModalConfig({ ...modalConfig, isOpen: false });
+
+    const handleLogoutClick = () => {
+        openModal({
+            type: 'danger',
+            title: '¿Cerrar Sesión?',
+            message: t('confirm_logout'),
+            confirmText: t('logout'),
+            onConfirm: onLogout
+        });
     };
 
     const openCaregiverChat = async () => {
@@ -31,12 +48,18 @@ const PatientDashboard: React.FC<{ user: any, onLogout: () => void }> = ({ user,
             if (res.data && res.data.length > 0) {
                 setActiveChat({ id: res.data[0].id, name: res.data[0].name });
             } else {
-                alert(t('no_caregivers'));
+                // Reemplazo del alert nativo
+                openModal({
+                    type: 'info',
+                    title: 'Sin Conexión',
+                    message: t('no_caregivers'),
+                    singleButton: true,
+                    confirmText: 'Entendido'
+                });
             }
         } catch (e) { console.error(e); }
     };
 
-    // Lógica de fecha localizada
     const currentDate = format(new Date(), 'EEEE, d MMMM', { locale: language === 'en' ? enUS : es });
 
     const NavButton = ({ label, active, onClick, icon }: any) => (
@@ -82,7 +105,7 @@ const PatientDashboard: React.FC<{ user: any, onLogout: () => void }> = ({ user,
                     <NavButton label={t('settings')} active={view === 'settings'} onClick={() => setView('settings')} icon="⚙️" />
                 </div>
                 <button
-                    onClick={handleLogoutConfirm}
+                    onClick={handleLogoutClick}
                     className="ml-4 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-300 p-3 rounded-full hover:bg-red-200 dark:hover:bg-red-900/50 transition font-bold text-sm md:text-base px-5 whitespace-nowrap"
                 >
                     {t('logout')}
@@ -94,6 +117,17 @@ const PatientDashboard: React.FC<{ user: any, onLogout: () => void }> = ({ user,
     return (
         <div className="min-h-screen bg-[#F3F4F6] dark:bg-gray-900 pb-10 relative font-sans transition-colors duration-300">
             <ReminderNotification />
+            <Modal
+                isOpen={modalConfig.isOpen}
+                onClose={closeModal}
+                onConfirm={modalConfig.onConfirm}
+                title={modalConfig.title}
+                message={modalConfig.message}
+                type={modalConfig.type}
+                singleButton={modalConfig.singleButton}
+                confirmText={modalConfig.confirmText || 'Aceptar'}
+            />
+
             <TopBar />
 
             <div className="container mx-auto px-4 max-w-6xl mt-4">
@@ -101,7 +135,6 @@ const PatientDashboard: React.FC<{ user: any, onLogout: () => void }> = ({ user,
                     <div className="animate-fade-in-up">
                         <div className="flex flex-col md:flex-row justify-between items-center mb-10 bg-white dark:bg-gray-800 p-8 rounded-[2.5rem] shadow-sm border border-gray-100 dark:border-gray-700 transition-colors duration-300">
                             <div className="text-center md:text-left mb-6 md:mb-0">
-                                {/* Fecha traducida dinámicamente */}
                                 <p className="text-teal-600 dark:text-teal-400 font-bold text-lg uppercase tracking-wider mb-1 capitalize">
                                     {currentDate}
                                 </p>
@@ -166,7 +199,7 @@ const PatientDashboard: React.FC<{ user: any, onLogout: () => void }> = ({ user,
                     {view === 'reminders' && <PatientRemindersView onBack={() => setView('menu')} />}
                     {view === 'news' && <NewsView onBack={() => setView('menu')} />}
                     {view === 'contact' && <ContactsView onBack={() => setView('menu')} />}
-                    {view === 'settings' && <SettingsView user={user} onBack={() => setView('menu')} onLogout={handleLogoutConfirm} />}
+                    {view === 'settings' && <SettingsView user={user} onBack={() => setView('menu')} onLogout={handleLogoutClick} />}
                 </div>
             </div>
 

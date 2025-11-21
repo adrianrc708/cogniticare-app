@@ -12,7 +12,7 @@ const translations = {
         hello: 'Hola',
         what_to_do: '¿Qué te gustaría hacer hoy?',
 
-        // Dashboard Cards
+        // Dashboard Cards (Paciente)
         cognitive_eval: 'Evaluación Cognitiva',
         cognitive_desc: 'Pon a prueba tu memoria hoy',
         minigames: 'Minijuegos',
@@ -64,14 +64,19 @@ const translations = {
         logout_full: 'Cerrar Sesión en este dispositivo',
         confirm_logout: '¿Estás seguro de que deseas cerrar sesión?',
 
-        // Cuidador / Chat (CLAVES NUEVAS AÑADIDAS AQUÍ)
+        // Cuidador / Chat
         chat_caregiver: 'Chat con Cuidador',
         no_caregivers: 'No tienes cuidadores vinculados aún.',
         caregiver_panel: 'Panel de Cuidador',
         link_new: 'Vincular Nuevo Paciente',
+        link_instruction: 'Ingresa el código único del paciente para comenzar a monitorearlo.', // NUEVO
         my_patients: 'Mis Pacientes',
         link_btn: 'Vincular',
-        no_patients: 'No hay pacientes vinculados.'
+        no_patients: 'No hay pacientes vinculados.',
+        status_active: 'Activo', // NUEVO
+        btn_chat: 'Chat',        // NUEVO
+        btn_progress: 'Progreso', // NUEVO
+        btn_alerts: 'Alertas'     // NUEVO
     },
     en: {
         // General
@@ -141,9 +146,14 @@ const translations = {
         no_caregivers: 'No linked caregivers yet.',
         caregiver_panel: 'Caregiver Panel',
         link_new: 'Link New Patient',
+        link_instruction: 'Enter the unique patient code to start monitoring them.', // NUEVO
         my_patients: 'My Patients',
         link_btn: 'Link',
-        no_patients: 'No linked patients.'
+        no_patients: 'No linked patients.',
+        status_active: 'Active', // NUEVO
+        btn_chat: 'Chat',        // NUEVO
+        btn_progress: 'Progress', // NUEVO
+        btn_alerts: 'Alerts'      // NUEVO
     }
 };
 
