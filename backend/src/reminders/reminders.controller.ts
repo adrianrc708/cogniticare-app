@@ -12,7 +12,7 @@ export class RemindersController {
         const scheduledDate = new Date(body.scheduledTime);
         const now = new Date();
 
-        // VALIDACIÓN: No permitir fechas pasadas (con 1 min de margen por latencia)
+        // VALIDACIÓN DE FECHA (con margen de 1 min por latencia)
         if (scheduledDate.getTime() < (now.getTime() - 60000)) {
             throw new HttpException('No puedes programar recordatorios en el pasado.', HttpStatus.BAD_REQUEST);
         }

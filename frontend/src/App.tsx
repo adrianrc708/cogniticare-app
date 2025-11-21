@@ -6,8 +6,7 @@ import PatientDashboard from './pages/PatientDashboard';
 import axios from 'axios';
 import CaregiverChart from './components/history/CaregiverChart';
 import CaregiverReminders from './components/reminders/CaregiverReminders';
-// IMPORTAR CHAT
-import ChatWindow from './components/chat/ChatWindow';
+import ChatWindow from './components/chat/ChatWindow'; // Importar Chat
 
 axios.interceptors.request.use((config) => {
     const token = localStorage.getItem('accessToken');
@@ -40,14 +39,11 @@ const App: React.FC = () => {
     return user.role === 'patient' ? <PatientDashboard user={user} onLogout={handleLogout} /> : <CaregiverView user={user} onLogout={handleLogout} />;
 };
 
-// --- VISTA DEL CUIDADOR ---
 const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) => {
     const [code, setCode] = useState('');
     const [msg, setMsg] = useState('');
     const [linkedPatients, setLinkedPatients] = useState<any[]>([]);
     const [view, setView] = useState<{ type: 'list' | 'progress' | 'reminders', patientId?: number, patientName?: string }>({ type: 'list' });
-
-    // ESTADO PARA CHAT FLOTANTE
     const [activeChat, setActiveChat] = useState<{id: number, name: string} | null>(null);
 
     useEffect(() => { loadPatients(); }, []);
@@ -72,28 +68,24 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
         }
     };
 
+    const confirmLogout = () => {
+        if (window.confirm('¿Estás seguro de que deseas cerrar sesión?')) onLogout();
+    }
+
     return (
         <div className="min-h-screen bg-gray-100 p-8 font-sans relative">
             <div className="flex justify-between items-center mb-8 max-w-6xl mx-auto">
                 <h1 className="text-2xl font-bold text-gray-800">Panel de Cuidador: {user.name}</h1>
-                <button onClick={onLogout} className="text-red-500 font-medium border border-red-200 bg-white px-4 py-2 rounded-lg hover:bg-red-50">Salir</button>
+                <button onClick={confirmLogout} className="text-red-500 font-medium border border-red-200 bg-white px-4 py-2 rounded-lg hover:bg-red-50">Salir</button>
             </div>
 
             <div className="max-w-6xl mx-auto">
                 {view.type === 'progress' && view.patientId && (
-                    <CaregiverChart
-                        patientId={view.patientId}
-                        patientName={view.patientName!}
-                        onBack={() => setView({ type: 'list' })}
-                    />
+                    <CaregiverChart patientId={view.patientId} patientName={view.patientName!} onBack={() => setView({ type: 'list' })} />
                 )}
 
                 {view.type === 'reminders' && view.patientId && (
-                    <CaregiverReminders
-                        patientId={view.patientId}
-                        patientName={view.patientName!}
-                        onBack={() => setView({ type: 'list' })}
-                    />
+                    <CaregiverReminders patientId={view.patientId} patientName={view.patientName!} onBack={() => setView({ type: 'list' })} />
                 )}
 
                 {view.type === 'list' && (
@@ -101,10 +93,7 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                         <div className="bg-white p-6 rounded-xl shadow-md h-fit md:col-span-1">
                             <h3 className="text-xl font-bold text-blue-800 mb-4">Vincular Nuevo Paciente</h3>
                             <div className="flex gap-2">
-                                <input
-                                    type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())}
-                                    placeholder="Ej: A1B2-C3D4" className="flex-1 border border-gray-300 p-3 rounded-lg outline-none font-mono uppercase"
-                                />
+                                <input type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Ej: A1B2-C3D4" className="flex-1 border border-gray-300 p-3 rounded-lg outline-none font-mono uppercase" />
                                 <button onClick={handleLink} className="bg-blue-600 text-white px-4 rounded-lg hover:bg-blue-700 transition">Vincular</button>
                             </div>
                             {msg && <div className={`mt-4 p-3 rounded-lg text-sm ${msg.startsWith('error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{msg.split(':')[1]}</div>}
@@ -121,27 +110,14 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                                             <div>
                                                 <div className="flex items-center gap-2">
                                                     <p className="font-bold text-gray-800 text-lg">{p.name}</p>
-                                                    {/* BOTÓN CHAT */}
-                                                    <button onClick={() => setActiveChat({id: p.id, name: p.name})} className="text-teal-600 hover:text-teal-800 bg-teal-50 p-1 rounded-full" title="Abrir Chat">
-                                                        💬
-                                                    </button>
+                                                    <button onClick={() => setActiveChat({id: p.id, name: p.name})} className="text-teal-600 hover:text-teal-800 bg-teal-50 p-1 rounded-full" title="Chat">💬</button>
                                                 </div>
                                                 <p className="text-sm text-gray-500">{p.email}</p>
                                                 <span className="text-xs font-mono bg-gray-100 text-gray-500 px-2 py-1 rounded mt-1 inline-block">Código: {p.patientCode}</span>
                                             </div>
                                             <div className="flex gap-2">
-                                                <button
-                                                    onClick={() => setView({ type: 'progress', patientId: p.id, patientName: p.name })}
-                                                    className="bg-blue-50 text-blue-600 px-3 py-2 rounded-lg font-medium hover:bg-blue-100 transition flex items-center gap-1 text-sm"
-                                                >
-                                                    📈 Progreso
-                                                </button>
-                                                <button
-                                                    onClick={() => setView({ type: 'reminders', patientId: p.id, patientName: p.name })}
-                                                    className="bg-teal-50 text-teal-600 px-3 py-2 rounded-lg font-medium hover:bg-teal-100 transition flex items-center gap-1 text-sm"
-                                                >
-                                                    ⏰ Recordatorios
-                                                </button>
+                                                <button onClick={() => setView({ type: 'progress', patientId: p.id, patientName: p.name })} className="bg-blue-50 text-blue-600 px-3 py-2 rounded-lg font-medium hover:bg-blue-100 transition text-sm">📈 Progreso</button>
+                                                <button onClick={() => setView({ type: 'reminders', patientId: p.id, patientName: p.name })} className="bg-teal-50 text-teal-600 px-3 py-2 rounded-lg font-medium hover:bg-teal-100 transition text-sm">⏰ Recordatorios</button>
                                             </div>
                                         </li>
                                     ))}
@@ -152,15 +128,7 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                 )}
             </div>
 
-            {/* VENTANA DE CHAT FLOTANTE */}
-            {activeChat && (
-                <ChatWindow
-                    currentUserId={user.id}
-                    contactId={activeChat.id}
-                    contactName={activeChat.name}
-                    onClose={() => setActiveChat(null)}
-                />
-            )}
+            {activeChat && <ChatWindow currentUserId={user.id} contactId={activeChat.id} contactName={activeChat.name} onClose={() => setActiveChat(null)} />}
         </div>
     );
 };

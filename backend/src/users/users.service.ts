@@ -69,7 +69,7 @@ export class UsersService {
         } as User));
     }
 
-    // NUEVO: Obtener cuidadores de un paciente (para el chat)
+    // NUEVO: Obtener cuidadores vinculados al paciente
     async getLinkedCaregivers(patientId: number): Promise<User[]> {
         const patient = await this.userRepository.findOne({
             where: { id: patientId, role: UserRole.PATIENT },
@@ -80,7 +80,6 @@ export class UsersService {
             throw new HttpException('Paciente no encontrado.', HttpStatus.NOT_FOUND);
         }
 
-        // Retornamos info básica de los cuidadores
         return patient.caregivers.map(c => ({
             id: c.id,
             name: c.name,

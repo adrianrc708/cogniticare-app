@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-// Diccionario de traducciones
 const translations = {
     es: {
         home: 'Inicio',
@@ -40,7 +39,16 @@ const translations = {
         win_msg: '¡Ganaste! 🎉',
         lose_msg: '¡Boom! 💥',
         play_again: 'Jugar de Nuevo',
-        exit: 'Salir'
+        exit: 'Salir',
+        contact_title: 'Contáctanos',
+        subject: 'Asunto',
+        message: 'Mensaje',
+        send_msg: 'Enviar Mensaje',
+        msg_sent: '¡Mensaje Enviado!',
+        msg_sent_desc: 'Gracias por contactarnos. Te responderemos pronto.',
+        confirm_logout: '¿Estás seguro de que deseas cerrar sesión?',
+        chat_caregiver: 'Chat con Cuidador',
+        no_caregivers: 'No tienes cuidadores vinculados aún.'
     },
     en: {
         home: 'Home',
@@ -80,7 +88,16 @@ const translations = {
         win_msg: 'You Win! 🎉',
         lose_msg: 'Boom! 💥',
         play_again: 'Play Again',
-        exit: 'Exit'
+        exit: 'Exit',
+        contact_title: 'Contact Us',
+        subject: 'Subject',
+        message: 'Message',
+        send_msg: 'Send Message',
+        msg_sent: 'Message Sent!',
+        msg_sent_desc: 'Thanks for contacting us. We will reply soon.',
+        confirm_logout: 'Are you sure you want to log out?',
+        chat_caregiver: 'Chat with Caregiver',
+        no_caregivers: 'No linked caregivers yet.'
     }
 };
 
@@ -113,7 +130,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
     const toggleDarkMode = () => setDarkMode(!darkMode);
 
-    // Función helper para traducir
     const t = (key: keyof typeof translations['es']) => {
         return translations[language][key] || key;
     };

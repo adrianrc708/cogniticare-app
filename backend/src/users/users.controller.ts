@@ -26,7 +26,6 @@ export class UsersController {
         return this.usersService.getLinkedPatients(caregiverId);
     }
 
-    // NUEVO: Endpoint para obtener cuidadores del paciente
     @Get('caregivers')
     async getLinkedCaregivers(@Request() req: any) {
         return this.usersService.getLinkedCaregivers(req.user.id);
