@@ -77,7 +77,7 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
         setMsg('');
         try {
             await axios.post('http://localhost:3000/users/link-patient', { patientCode: code });
-            setMsg('success:¡Vinculado!');
+            setMsg('success:OK');
             setCode('');
             loadPatients();
         } catch (error: any) {
@@ -89,10 +89,10 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
         openModal({
             type: 'danger',
             title: t('logout'),
-            message: t('confirm_logout'),
+            message: t('confirm_logout' as any),
             onConfirm: onLogout,
-            confirmText: t('confirm_btn'),
-            cancelText: t('cancel_btn')
+            confirmText: t('confirm_btn' as any),
+            cancelText: t('cancel_btn' as any)
         });
     };
 
@@ -100,10 +100,10 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
     const handleUnlinkClick = (patientId: number) => {
         openModal({
             type: 'danger',
-            title: t('unlink_patient_title'),
-            message: t('unlink_patient_msg'),
-            confirmText: t('unlink_btn'),
-            cancelText: t('cancel_btn'),
+            title: t('modal_unlink_title' as any),
+            message: t('modal_unlink_msg' as any),
+            confirmText: t('btn_unlink_confirm' as any),
+            cancelText: t('cancel_btn' as any),
             onConfirm: () => unlinkPatient(patientId)
         });
     };
@@ -113,9 +113,7 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
             await axios.delete(`http://localhost:3000/users/patients/${patientId}`);
             loadPatients();
             closeModal();
-        } catch (e) {
-            console.error(e);
-        }
+        } catch (e) { console.error(e); }
     };
     // ---------------------------
 
@@ -177,7 +175,7 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                                     <h1 className="text-3xl md:text-5xl font-extrabold text-gray-800 dark:text-white mb-2 leading-tight">
                                         {t('hello')}, <span className="text-blue-600 dark:text-blue-400">{user.name.split(' ')[0]}</span>
                                     </h1>
-                                    <p className="text-xl text-gray-500 dark:text-gray-400 font-medium">{t('caregiver_panel')}</p>
+                                    <p className="text-xl text-gray-500 dark:text-gray-400 font-medium">{t('caregiver_panel' as any)}</p>
                                 </div>
                                 <div className="bg-blue-50 dark:bg-blue-900/20 px-6 py-3 rounded-2xl border border-blue-100 dark:border-blue-800">
                                     <span className="text-4xl">👨‍⚕️</span>
@@ -200,22 +198,29 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                                 <div className="grid gap-8 lg:grid-cols-3">
                                     <div className="lg:col-span-1">
                                         <div className="bg-blue-600 dark:bg-blue-800 p-8 rounded-[2.5rem] shadow-lg text-white h-fit sticky top-24">
-                                            <h3 className="text-2xl font-black mb-2">{t('link_new')}</h3>
-                                            <p className="text-blue-100 mb-6 text-sm leading-relaxed">{t('link_instruction')}</p>
+                                            <h3 className="text-2xl font-black mb-2">{t('link_new' as any)}</h3>
+                                            <p className="text-blue-100 mb-6 text-sm leading-relaxed">{t('link_instruction' as any)}</p>
+
                                             <div className="space-y-4">
-                                                <input type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Ej: A1B2-C3D4" className="w-full bg-white/20 border-2 border-white/30 text-white placeholder-blue-200 p-4 rounded-2xl outline-none font-mono text-center text-xl uppercase focus:bg-white/30 focus:border-white transition-all" />
-                                                <button onClick={handleLink} className="w-full bg-white text-blue-700 font-bold py-4 rounded-2xl hover:bg-blue-50 hover:shadow-lg transition-all transform active:scale-95">{t('link_btn')}</button>
+                                                <input
+                                                    type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())}
+                                                    placeholder="Ej: A1B2-C3D4"
+                                                    className="w-full bg-white/20 border-2 border-white/30 text-white placeholder-blue-200 p-4 rounded-2xl outline-none font-mono text-center text-xl uppercase focus:bg-white/30 focus:border-white transition-all"
+                                                />
+                                                <button onClick={handleLink} className="w-full bg-white text-blue-700 font-bold py-4 rounded-2xl hover:bg-blue-50 hover:shadow-lg transition-all transform active:scale-95">
+                                                    {t('link_btn' as any)}
+                                                </button>
                                             </div>
                                             {msg && <div className={`mt-6 p-4 rounded-xl text-sm font-bold text-center animate-pulse ${msg.startsWith('error') ? 'bg-red-500/20 text-red-100' : 'bg-green-500/20 text-green-100'}`}>{msg.split(':')[1]}</div>}
                                         </div>
                                     </div>
 
                                     <div className="lg:col-span-2 space-y-6">
-                                        <h3 className="text-2xl font-bold text-gray-800 dark:text-white pl-2">{t('my_patients')} ({linkedPatients.length})</h3>
+                                        <h3 className="text-2xl font-bold text-gray-800 dark:text-white pl-2">{t('my_patients' as any)} ({linkedPatients.length})</h3>
                                         {linkedPatients.length === 0 ? (
                                             <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-[2.5rem] border-2 border-dashed border-gray-200 dark:border-gray-700">
                                                 <span className="text-6xl block mb-4 opacity-50">📭</span>
-                                                <p className="text-gray-500 dark:text-gray-400 text-lg">{t('no_patients')}</p>
+                                                <p className="text-gray-500 dark:text-gray-400 text-lg">{t('no_patients' as any)}</p>
                                             </div>
                                         ) : (
                                             linkedPatients.map(p => (
@@ -229,25 +234,23 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                                                             <div>
                                                                 <div className="flex items-center gap-2">
                                                                     <h4 className="text-xl font-black text-gray-800 dark:text-white">{p.name}</h4>
-                                                                    <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-green-200 dark:border-green-800">{t('status_active')}</span>
+                                                                    <span className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border border-green-200 dark:border-green-800">{t('status_active' as any)}</span>
                                                                 </div>
                                                                 <p className="text-gray-500 dark:text-gray-400 text-sm mb-1">{p.email}</p>
                                                                 <p className="text-xs font-mono text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-md w-fit">CODE: {p.patientCode}</p>
                                                             </div>
                                                         </div>
-                                                        {/* Botones de Acción */}
                                                         <div className="flex flex-wrap gap-2 w-full md:w-auto mt-2 md:mt-0">
-                                                            <button onClick={() => setActiveChat({id: p.id, name: p.name})} className="flex-1 md:flex-none bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 px-4 py-3 rounded-xl font-bold hover:bg-teal-100 dark:hover:bg-teal-900/40 transition flex items-center justify-center gap-2 border border-transparent hover:border-teal-200"><span>💬</span> {t('btn_chat')}</button>
-                                                            <button onClick={() => setSubView({ type: 'progress', patientId: p.id, patientName: p.name })} className="flex-1 md:flex-none bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-xl font-bold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition flex items-center justify-center gap-2 border border-transparent hover:border-blue-200"><span>📈</span> {t('btn_progress')}</button>
-                                                            <button onClick={() => setSubView({ type: 'reminders', patientId: p.id, patientName: p.name })} className="flex-1 md:flex-none bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 px-4 py-3 rounded-xl font-bold hover:bg-orange-100 dark:hover:bg-orange-900/40 transition flex items-center justify-center gap-2 border border-transparent hover:border-orange-200"><span>⏰</span> {t('btn_alerts')}</button>
+                                                            <button onClick={() => setActiveChat({id: p.id, name: p.name})} className="flex-1 md:flex-none bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 px-4 py-3 rounded-xl font-bold hover:bg-teal-100 dark:hover:bg-teal-900/40 transition flex items-center justify-center gap-2 border border-transparent hover:border-teal-200"><span>💬</span> {t('btn_chat' as any)}</button>
+                                                            <button onClick={() => setSubView({ type: 'progress', patientId: p.id, patientName: p.name })} className="flex-1 md:flex-none bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-xl font-bold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition flex items-center justify-center gap-2 border border-transparent hover:border-blue-200"><span>📈</span> {t('btn_progress' as any)}</button>
+                                                            <button onClick={() => setSubView({ type: 'reminders', patientId: p.id, patientName: p.name })} className="flex-1 md:flex-none bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 px-4 py-3 rounded-xl font-bold hover:bg-orange-100 dark:hover:bg-orange-900/40 transition flex items-center justify-center gap-2 border border-transparent hover:border-orange-200"><span>⏰</span> {t('btn_alerts' as any)}</button>
 
-                                                            {/* Nuevo Botón Desvincular */}
+                                                            {/* BOTÓN DESVINCULAR REDISEÑADO (Texto completo + Icono) */}
                                                             <button
                                                                 onClick={() => handleUnlinkClick(p.id)}
                                                                 className="flex-1 md:flex-none bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition flex items-center justify-center gap-2 border border-transparent hover:border-red-200"
-                                                                title="Desvincular paciente"
                                                             >
-                                                                <span>🗑️</span> {t('unlink_btn')}
+                                                                <span>🗑️</span> {t('unlink_btn' as any)}
                                                             </button>
                                                         </div>
                                                     </div>

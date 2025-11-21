@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { es, enUS } from 'date-fns/locale';
+import { useTheme } from '../../context/ThemeContext'; // Importamos useTheme
 
 interface Message {
     id: number;
@@ -21,6 +22,8 @@ const ChatWindow: React.FC<Props> = ({ currentUserId, contactId, contactName, on
     const [messages, setMessages] = useState<Message[]>([]);
     const [newMessage, setNewMessage] = useState('');
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const { t, language } = useTheme(); // Usamos el hook
+    const dateLocale = language === 'en' ? enUS : es;
 
     const loadMessages = async () => {
         try {
@@ -54,7 +57,6 @@ const ChatWindow: React.FC<Props> = ({ currentUserId, contactId, contactName, on
     };
 
     return (
-        // Contenedor principal flotante (más grande y con sombras suaves)
         <div className="fixed bottom-4 right-4 w-full max-w-md h-[650px] max-h-[80vh] bg-[#F3F4F6] dark:bg-gray-900 rounded-[2.5rem] shadow-2xl flex flex-col border-4 border-white dark:border-gray-700 z-50 overflow-hidden font-sans transition-colors duration-300">
 
             {/* Cabecera Amigable */}
@@ -67,7 +69,8 @@ const ChatWindow: React.FC<Props> = ({ currentUserId, contactId, contactName, on
                         <h3 className="font-black text-white text-2xl tracking-wide drop-shadow-sm">{contactName}</h3>
                         <div className="flex items-center gap-2 bg-teal-800/50 px-3 py-1 rounded-full w-fit">
                             <span className="w-3 h-3 bg-green-400 rounded-full animate-pulse shadow-[0_0_8px_rgba(74,222,128,0.8)]"></span>
-                            <span className="text-teal-50 text-sm font-bold uppercase tracking-wider">En línea</span>
+                            {/* AQUI USAMOS LA TRADUCCIÓN */}
+                            <span className="text-teal-50 text-sm font-bold uppercase tracking-wider">{t('chat_online' as any)}</span>
                         </div>
                     </div>
                 </div>
@@ -85,7 +88,7 @@ const ChatWindow: React.FC<Props> = ({ currentUserId, contactId, contactName, on
                 {messages.length === 0 && (
                     <div className="text-center text-gray-400 mt-10">
                         <p className="text-4xl mb-2">👋</p>
-                        <p className="text-lg">Inicia la conversación</p>
+                        <p className="text-lg">...</p>
                     </div>
                 )}
 
@@ -104,7 +107,7 @@ const ChatWindow: React.FC<Props> = ({ currentUserId, contactId, contactName, on
                             >
                                 <p className="leading-relaxed">{msg.content}</p>
                                 <p className={`text-xs font-bold mt-2 text-right ${isMe ? 'text-teal-700/60 dark:text-teal-200/60' : 'text-gray-400'}`}>
-                                    {format(new Date(msg.createdAt), 'HH:mm', { locale: es })}
+                                    {format(new Date(msg.createdAt), 'HH:mm', { locale: dateLocale })}
                                 </p>
                             </div>
                         </div>
@@ -113,14 +116,14 @@ const ChatWindow: React.FC<Props> = ({ currentUserId, contactId, contactName, on
                 <div ref={messagesEndRef} />
             </div>
 
-            {/* Área de Escritura (Input grande) */}
+            {/* Área de Escritura */}
             <form onSubmit={handleSend} className="p-4 bg-white dark:bg-gray-800 border-t dark:border-gray-700 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
                 <div className="flex gap-3 items-end">
                     <input
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder="Escribe aquí..."
+                        placeholder="..."
                         className="flex-1 bg-gray-100 dark:bg-gray-700 border-0 rounded-3xl px-6 py-5 text-gray-800 dark:text-white text-xl focus:ring-4 focus:ring-teal-200 dark:focus:ring-teal-900 outline-none placeholder-gray-400 transition-all"
                     />
                     <button
