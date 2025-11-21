@@ -1,4 +1,3 @@
-// backend/src/users/users.service.ts
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -67,6 +66,26 @@ export class UsersService {
             patientCode: p.patientCode,
             role: p.role,
             email: p.email,
+        } as User));
+    }
+
+    // NUEVO: Obtener cuidadores de un paciente (para el chat)
+    async getLinkedCaregivers(patientId: number): Promise<User[]> {
+        const patient = await this.userRepository.findOne({
+            where: { id: patientId, role: UserRole.PATIENT },
+            relations: ['caregivers'],
+        });
+
+        if (!patient) {
+            throw new HttpException('Paciente no encontrado.', HttpStatus.NOT_FOUND);
+        }
+
+        // Retornamos info básica de los cuidadores
+        return patient.caregivers.map(c => ({
+            id: c.id,
+            name: c.name,
+            email: c.email,
+            role: c.role
         } as User));
     }
 

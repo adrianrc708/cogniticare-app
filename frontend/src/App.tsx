@@ -6,8 +6,9 @@ import PatientDashboard from './pages/PatientDashboard';
 import axios from 'axios';
 import CaregiverChart from './components/history/CaregiverChart';
 import CaregiverReminders from './components/reminders/CaregiverReminders';
+// IMPORTAR CHAT
+import ChatWindow from './components/chat/ChatWindow';
 
-// Configurar Axios...
 axios.interceptors.request.use((config) => {
     const token = localStorage.getItem('accessToken');
     if (token) config.headers.Authorization = `Bearer ${token}`;
@@ -44,8 +45,10 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
     const [code, setCode] = useState('');
     const [msg, setMsg] = useState('');
     const [linkedPatients, setLinkedPatients] = useState<any[]>([]);
-    // 'view' controla qué estamos viendo: lista, progreso o recordatorios de un paciente específico
     const [view, setView] = useState<{ type: 'list' | 'progress' | 'reminders', patientId?: number, patientName?: string }>({ type: 'list' });
+
+    // ESTADO PARA CHAT FLOTANTE
+    const [activeChat, setActiveChat] = useState<{id: number, name: string} | null>(null);
 
     useEffect(() => { loadPatients(); }, []);
 
@@ -70,14 +73,13 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 p-8 font-sans">
+        <div className="min-h-screen bg-gray-100 p-8 font-sans relative">
             <div className="flex justify-between items-center mb-8 max-w-6xl mx-auto">
                 <h1 className="text-2xl font-bold text-gray-800">Panel de Cuidador: {user.name}</h1>
                 <button onClick={onLogout} className="text-red-500 font-medium border border-red-200 bg-white px-4 py-2 rounded-lg hover:bg-red-50">Salir</button>
             </div>
 
             <div className="max-w-6xl mx-auto">
-                {/* VISTA: PROGRESO */}
                 {view.type === 'progress' && view.patientId && (
                     <CaregiverChart
                         patientId={view.patientId}
@@ -86,7 +88,6 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                     />
                 )}
 
-                {/* VISTA: RECORDATORIOS */}
                 {view.type === 'reminders' && view.patientId && (
                     <CaregiverReminders
                         patientId={view.patientId}
@@ -95,10 +96,8 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                     />
                 )}
 
-                {/* VISTA: LISTA PRINCIPAL */}
                 {view.type === 'list' && (
                     <div className="grid gap-8 md:grid-cols-3">
-                        {/* Columna Izquierda: Vincular */}
                         <div className="bg-white p-6 rounded-xl shadow-md h-fit md:col-span-1">
                             <h3 className="text-xl font-bold text-blue-800 mb-4">Vincular Nuevo Paciente</h3>
                             <div className="flex gap-2">
@@ -111,7 +110,6 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                             {msg && <div className={`mt-4 p-3 rounded-lg text-sm ${msg.startsWith('error') ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>{msg.split(':')[1]}</div>}
                         </div>
 
-                        {/* Columna Derecha: Lista de Pacientes */}
                         <div className="bg-white p-6 rounded-xl shadow-md md:col-span-2">
                             <h3 className="text-xl font-bold text-gray-800 mb-4">Mis Pacientes</h3>
                             {linkedPatients.length === 0 ? (
@@ -121,7 +119,13 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                                     {linkedPatients.map(p => (
                                         <li key={p.id} className="py-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                                             <div>
-                                                <p className="font-bold text-gray-800 text-lg">{p.name}</p>
+                                                <div className="flex items-center gap-2">
+                                                    <p className="font-bold text-gray-800 text-lg">{p.name}</p>
+                                                    {/* BOTÓN CHAT */}
+                                                    <button onClick={() => setActiveChat({id: p.id, name: p.name})} className="text-teal-600 hover:text-teal-800 bg-teal-50 p-1 rounded-full" title="Abrir Chat">
+                                                        💬
+                                                    </button>
+                                                </div>
                                                 <p className="text-sm text-gray-500">{p.email}</p>
                                                 <span className="text-xs font-mono bg-gray-100 text-gray-500 px-2 py-1 rounded mt-1 inline-block">Código: {p.patientCode}</span>
                                             </div>
@@ -147,6 +151,16 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                     </div>
                 )}
             </div>
+
+            {/* VENTANA DE CHAT FLOTANTE */}
+            {activeChat && (
+                <ChatWindow
+                    currentUserId={user.id}
+                    contactId={activeChat.id}
+                    contactName={activeChat.name}
+                    onClose={() => setActiveChat(null)}
+                />
+            )}
         </div>
     );
 };

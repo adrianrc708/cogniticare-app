@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Param, UseGuards, Request, Patch, Delete } from '@nestjs/common';
+import { Controller, Post, Body, Get, Param, UseGuards, Request, Patch, Delete, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { RemindersService } from './reminders.service';
 
@@ -7,37 +7,40 @@ import { RemindersService } from './reminders.service';
 export class RemindersController {
     constructor(private remindersService: RemindersService) {}
 
-    // Cuidador crea recordatorio
     @Post()
     async create(@Request() req: any, @Body() body: { patientId: number, title: string, description: string, scheduledTime: string }) {
+        const scheduledDate = new Date(body.scheduledTime);
+        const now = new Date();
+
+        // VALIDACIÓN: No permitir fechas pasadas (con 1 min de margen por latencia)
+        if (scheduledDate.getTime() < (now.getTime() - 60000)) {
+            throw new HttpException('No puedes programar recordatorios en el pasado.', HttpStatus.BAD_REQUEST);
+        }
+
         return this.remindersService.create(
             req.user.id,
             body.patientId,
             body.title,
             body.description,
-            new Date(body.scheduledTime)
+            scheduledDate
         );
     }
 
-    // Paciente verifica alertas (Polling)
     @Get('active')
     async checkActiveReminders(@Request() req: any) {
         return this.remindersService.getActiveForPatient(req.user.id);
     }
 
-    // Paciente confirma alerta
     @Patch(':id/acknowledge')
     async acknowledge(@Param('id') id: number) {
         return this.remindersService.acknowledgeByPatient(id);
     }
 
-    // Cuidador ve lista
     @Get('caregiver')
     async getCaregiverReminders(@Request() req: any) {
         return this.remindersService.getForCaregiver(req.user.id);
     }
 
-    // Cuidador elimina
     @Delete(':id')
     async delete(@Param('id') id: number, @Request() req: any) {
         return this.remindersService.delete(req.user.id, id);

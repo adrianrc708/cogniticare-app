@@ -1,16 +1,15 @@
 import { Controller, Post, Body, Get, Request, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { LinkPatientDto } from './users.dto';
-import { AuthGuard } from '@nestjs/passport'; // El guardia estándar de NestJS/Passport
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('users')
-@UseGuards(AuthGuard('jwt')) // <-- PROTEGE TODAS LAS RUTAS DE ESTE CONTROLADOR
+@UseGuards(AuthGuard('jwt'))
 export class UsersController {
     constructor(private usersService: UsersService) {}
 
     @Post('link-patient')
     async linkPatient(@Body() linkPatientDto: LinkPatientDto, @Request() req: any) {
-        // req.user viene del JwtStrategy que creamos arriba
         const caregiverId = req.user.id;
         const role = req.user.role;
 
@@ -27,10 +26,14 @@ export class UsersController {
         return this.usersService.getLinkedPatients(caregiverId);
     }
 
-    // Nueva ruta para que el paciente vea su propio perfil y código
+    // NUEVO: Endpoint para obtener cuidadores del paciente
+    @Get('caregivers')
+    async getLinkedCaregivers(@Request() req: any) {
+        return this.usersService.getLinkedCaregivers(req.user.id);
+    }
+
     @Get('me')
     async getMe(@Request() req: any) {
-        // Retornamos info básica del usuario logueado
         return this.usersService.getUserProfile(req.user.id);
     }
 }
