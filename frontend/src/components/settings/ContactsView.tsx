@@ -8,58 +8,73 @@ const ContactsView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Simulación de envío al correo admin
-        console.log(`Enviando a adrian.rivera@unmsm.edu.pe: ${JSON.stringify(formData)}`);
+        console.log(`Enviando a soporte: ${JSON.stringify(formData)}`);
         setTimeout(() => {
             setSent(true);
         }, 1000);
     };
 
     return (
-        <div className="max-w-2xl mx-auto dark:text-white">
-            <div className="flex items-center mb-6">
-                <button onClick={onBack} className="bg-white dark:bg-gray-700 p-2 rounded-full shadow-md text-gray-600 dark:text-gray-200 hover:text-teal-600 mr-4 text-xl transition">
-                    ⬅
+        // Agregado pt-8 para espaciado superior
+        <div className="max-w-3xl mx-auto pb-10 pt-8 px-4">
+            {/* Header */}
+            <div className="flex items-center mb-8">
+                <button
+                    onClick={onBack}
+                    className="bg-white dark:bg-gray-800 p-3 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-gray-600 dark:text-gray-200 hover:text-teal-600 hover:scale-105 transition-all mr-4"
+                >
+                    <span className="text-2xl">⬅</span>
                 </button>
-                <h2 className="text-3xl font-bold text-teal-800 dark:text-teal-400">{t('contact_title')}</h2>
+                <h2 className="text-3xl font-black text-gray-800 dark:text-white">{t('contact_title')}</h2>
             </div>
 
-            <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-lg">
+            <div className="bg-white dark:bg-gray-800 p-8 md:p-10 rounded-[2.5rem] shadow-xl border border-gray-100 dark:border-gray-700">
                 {sent ? (
-                    <div className="text-center py-10">
-                        <div className="text-6xl mb-4">📧✅</div>
-                        <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">{t('msg_sent')}</h3>
-                        <p className="text-gray-600 dark:text-gray-300">{t('msg_sent_desc')}</p>
+                    <div className="text-center py-16 animate-fade-in-up">
+                        <div className="w-24 h-24 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <span className="text-5xl">✅</span>
+                        </div>
+                        <h3 className="text-3xl font-bold text-gray-800 dark:text-white mb-4">{t('msg_sent')}</h3>
+                        <p className="text-xl text-gray-600 dark:text-gray-300 mb-10 max-w-md mx-auto">{t('msg_sent_desc')}</p>
                         <button
                             onClick={onBack}
-                            className="mt-6 bg-teal-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-teal-700"
+                            className="bg-teal-600 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-teal-700 hover:shadow-lg transition transform active:scale-95"
                         >
                             {t('back')}
                         </button>
                     </div>
                 ) : (
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-8">
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">{t('subject')}</label>
+                            <label className="block text-lg font-bold text-gray-700 dark:text-gray-200 mb-3 pl-1">
+                                📝 {t('subject')}
+                            </label>
                             <input
                                 type="text"
                                 required
                                 value={formData.subject}
                                 onChange={(e) => setFormData({...formData, subject: e.target.value})}
-                                className="w-full border dark:border-gray-600 dark:bg-gray-700 p-3 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
+                                className="w-full bg-gray-50 dark:bg-gray-700/50 border-2 border-gray-100 dark:border-gray-600 text-gray-900 dark:text-white p-5 rounded-2xl text-lg focus:ring-4 focus:ring-teal-100 dark:focus:ring-teal-900/30 focus:border-teal-500 outline-none transition-all"
+                                placeholder="Ej: Ayuda con la app..."
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">{t('message')}</label>
+                            <label className="block text-lg font-bold text-gray-700 dark:text-gray-200 mb-3 pl-1">
+                                💬 {t('message')}
+                            </label>
                             <textarea
                                 required
-                                rows={4}
+                                rows={5}
                                 value={formData.message}
                                 onChange={(e) => setFormData({...formData, message: e.target.value})}
-                                className="w-full border dark:border-gray-600 dark:bg-gray-700 p-3 rounded-lg focus:ring-2 focus:ring-teal-500 outline-none"
+                                className="w-full bg-gray-50 dark:bg-gray-700/50 border-2 border-gray-100 dark:border-gray-600 text-gray-900 dark:text-white p-5 rounded-2xl text-lg focus:ring-4 focus:ring-teal-100 dark:focus:ring-teal-900/30 focus:border-teal-500 outline-none transition-all resize-none"
+                                placeholder="Escribe aquí tu consulta..."
                             />
                         </div>
-                        <button type="submit" className="w-full bg-teal-600 text-white py-3 rounded-lg font-bold text-lg hover:bg-teal-700 transition shadow-md">
+                        <button
+                            type="submit"
+                            className="w-full bg-teal-600 text-white py-5 rounded-2xl font-bold text-xl hover:bg-teal-700 hover:shadow-lg transition-all transform active:scale-[0.98]"
+                        >
                             {t('send_msg')}
                         </button>
                     </form>
