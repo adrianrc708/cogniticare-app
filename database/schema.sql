@@ -14,12 +14,18 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Tabla de Recordatorios (Relacionado con Cuidadores y/o Pacientes)
-CREATE TABLE reminders (
+-- MODIFICADA: Tabla de Recordatorios
+CREATE TABLE IF NOT EXISTS reminders (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
+    patient_id INT NOT NULL,
+    caregiver_id INT NOT NULL,
     title VARCHAR(255) NOT NULL,
     description TEXT,
     scheduled_time DATETIME NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    is_active BOOLEAN DEFAULT TRUE, -- Si la alerta sigue vigente (para que suene cada minuto)
+    patient_acknowledged BOOLEAN DEFAULT FALSE, -- Si el paciente ya dijo "Soy consciente"
+    caregiver_acknowledged BOOLEAN DEFAULT FALSE, -- Si el cuidador ya vio que el paciente respondió
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (caregiver_id) REFERENCES users(id) ON DELETE CASCADE
 );

@@ -3,10 +3,12 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { EvaluationsModule } from './evaluations/evaluations.module'; // IMPORTAR
+import { EvaluationsModule } from './evaluations/evaluations.module';
+import { RemindersModule } from './reminders/reminders.module'; // IMPORTAR
 import { User } from './db/user.entity';
-import { Question } from './evaluations/question.entity'; // IMPORTAR
-import { EvaluationResult } from './evaluations/evaluation-result.entity'; // IMPORTAR
+import { Question } from './evaluations/question.entity';
+import { EvaluationResult } from './evaluations/evaluation-result.entity';
+import { Reminder } from './reminders/reminder.entity'; // IMPORTAR
 
 @Module({
     imports: [
@@ -18,12 +20,13 @@ import { EvaluationResult } from './evaluations/evaluation-result.entity'; // IM
             username: process.env.DB_USER,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_DATABASE,
-            entities: [User, Question, EvaluationResult], // AÑADIR AQUÍ
+            entities: [User, Question, EvaluationResult, Reminder], // AÑADIR AQUÍ
             synchronize: true,
         }),
         UsersModule,
         AuthModule,
-        EvaluationsModule, // AÑADIR AQUÍ
+        EvaluationsModule,
+        RemindersModule, // AÑADIR AQUÍ
     ],
 })
 export class AppModule {}
