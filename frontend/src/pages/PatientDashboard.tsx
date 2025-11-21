@@ -7,7 +7,7 @@ import PatientRemindersView from '../components/reminders/PatientRemindersView';
 import NewsView from '../components/news/NewsView';
 import ContactsView from '../components/settings/ContactsView';
 import SettingsView from '../components/settings/SettingsView';
-import ChatWindow from '../components/chat/ChatWindow'; // Importar Chat
+import ChatWindow from '../components/chat/ChatWindow';
 import { useTheme } from '../context/ThemeContext';
 import axios from 'axios';
 
@@ -36,10 +36,10 @@ const PatientDashboard: React.FC<{ user: any, onLogout: () => void }> = ({ user,
     const TopBar = () => (
         <div className="bg-white dark:bg-gray-800 shadow px-4 py-3 flex justify-between items-center mb-6 sticky top-0 z-10 transition-colors duration-300">
             <div className="flex gap-2 overflow-x-auto pb-1 md:pb-0 no-scrollbar">
-                <button onClick={() => setView('menu')} className={`px-4 py-2 rounded-full font-bold transition whitespace-nowrap ${view === 'menu' ? 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>{t('home')}</button>
-                <button onClick={() => setView('news')} className={`px-4 py-2 rounded-full font-bold transition whitespace-nowrap ${view === 'news' ? 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>{t('news')}</button>
-                <button onClick={() => setView('contact')} className={`px-4 py-2 rounded-full font-bold transition whitespace-nowrap ${view === 'contact' ? 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>{t('contact')}</button>
-                <button onClick={() => setView('settings')} className={`px-4 py-2 rounded-full font-bold transition whitespace-nowrap ${view === 'settings' ? 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'}`}>{t('settings')}</button>
+                <button onClick={() => setView('menu')} className={`px-4 py-2 rounded-full font-bold transition whitespace-nowrap ${view === 'menu' ? 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-teal-50'}`}>{t('home')}</button>
+                <button onClick={() => setView('news')} className={`px-4 py-2 rounded-full font-bold transition whitespace-nowrap ${view === 'news' ? 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-teal-50'}`}>{t('news')}</button>
+                <button onClick={() => setView('contact')} className={`px-4 py-2 rounded-full font-bold transition whitespace-nowrap ${view === 'contact' ? 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-teal-50'}`}>{t('contact')}</button>
+                <button onClick={() => setView('settings')} className={`px-4 py-2 rounded-full font-bold transition whitespace-nowrap ${view === 'settings' ? 'bg-teal-100 text-teal-700 dark:bg-teal-900 dark:text-teal-300' : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-teal-50'}`}>{t('settings')}</button>
             </div>
             <button onClick={handleLogoutConfirm} className="text-red-500 font-bold px-3">{t('logout')}</button>
         </div>
@@ -85,6 +85,11 @@ const PatientDashboard: React.FC<{ user: any, onLogout: () => void }> = ({ user,
                                 <h2 className="text-2xl font-bold">{t('reminders')}</h2>
                                 <p className="text-gray-500 dark:text-gray-400 mt-1">{t('reminders_desc')}</p>
                             </div>
+                        </div>
+
+                        <div className="mt-12 bg-blue-50 dark:bg-blue-900/30 border-2 border-blue-100 dark:border-blue-800 rounded-2xl p-6 text-center max-w-md mx-auto">
+                            <p className="text-blue-800 dark:text-blue-300 mb-2 font-medium text-sm uppercase tracking-wide">{t('code_label')}</p>
+                            <span className="text-4xl font-mono font-black text-blue-900 dark:text-blue-200 tracking-widest">{user.patientCode}</span>
                         </div>
                     </>
                 )}

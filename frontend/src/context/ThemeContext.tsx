@@ -2,13 +2,17 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 
 const translations = {
     es: {
+        // General
         home: 'Inicio',
         news: 'Novedades',
         contact: 'Contactos',
         settings: 'Ajustes',
         logout: 'Salir',
+        back: 'Volver',
         hello: 'Hola',
         what_to_do: '¿Qué te gustaría hacer hoy?',
+
+        // Dashboard Cards
         cognitive_eval: 'Evaluación Cognitiva',
         cognitive_desc: 'Pon a prueba tu memoria hoy',
         minigames: 'Minijuegos',
@@ -18,6 +22,35 @@ const translations = {
         reminders: 'Recordatorios',
         reminders_desc: 'Medicinas y citas',
         code_label: 'Tu código de conexión',
+
+        // Juegos
+        minesweeper_title: 'Buscaminas',
+        minesweeper_desc: 'Click Izq: Revelar | Click Der: Bandera (🚩)',
+        memory_title: 'Memoria de Pares',
+        simon_title: 'Simon Dice',
+        math_title: 'Cálculo Rápido',
+        win_msg: '¡Ganaste! 🎉',
+        lose_msg: '¡Boom! 💥',
+        play_again: 'Jugar de Nuevo',
+        exit: 'Salir',
+
+        // Recordatorios
+        reminder_title: 'RECORDATORIO',
+        acknowledge_btn: '✅ ENTERADO',
+        past_reminder: 'PASADO / OLVIDADO',
+        active_reminder: 'AHORA MISMO',
+        no_reminders: 'No tienes recordatorios pendientes.',
+        all_good: 'Todo al día',
+
+        // Contacto
+        contact_title: 'Contáctanos',
+        subject: 'Asunto',
+        message: 'Mensaje',
+        send_msg: 'Enviar Mensaje',
+        msg_sent: '¡Mensaje Enviado!',
+        msg_sent_desc: 'Gracias por contactarnos. Te responderemos pronto.',
+
+        // Ajustes
         settings_title: 'Ajustes',
         account_info: 'Información de Cuenta',
         name: 'Nombre',
@@ -29,35 +62,29 @@ const translations = {
         language_desc: 'Selecciona el idioma de la interfaz',
         session: 'Sesión',
         logout_full: 'Cerrar Sesión en este dispositivo',
-        back: 'Volver',
-        reminder_title: 'RECORDATORIO',
-        acknowledge_btn: '✅ ENTERADO',
-        past_reminder: 'PASADO / OLVIDADO',
-        active_reminder: 'AHORA MISMO',
-        minesweeper_title: 'Buscaminas',
-        minesweeper_desc: 'Click Izq: Revelar | Click Der: Bandera (🚩)',
-        win_msg: '¡Ganaste! 🎉',
-        lose_msg: '¡Boom! 💥',
-        play_again: 'Jugar de Nuevo',
-        exit: 'Salir',
-        contact_title: 'Contáctanos',
-        subject: 'Asunto',
-        message: 'Mensaje',
-        send_msg: 'Enviar Mensaje',
-        msg_sent: '¡Mensaje Enviado!',
-        msg_sent_desc: 'Gracias por contactarnos. Te responderemos pronto.',
         confirm_logout: '¿Estás seguro de que deseas cerrar sesión?',
+
+        // Cuidador / Chat (CLAVES NUEVAS AÑADIDAS AQUÍ)
         chat_caregiver: 'Chat con Cuidador',
-        no_caregivers: 'No tienes cuidadores vinculados aún.'
+        no_caregivers: 'No tienes cuidadores vinculados aún.',
+        caregiver_panel: 'Panel de Cuidador',
+        link_new: 'Vincular Nuevo Paciente',
+        my_patients: 'Mis Pacientes',
+        link_btn: 'Vincular',
+        no_patients: 'No hay pacientes vinculados.'
     },
     en: {
+        // General
         home: 'Home',
         news: 'News',
         contact: 'Contact',
         settings: 'Settings',
         logout: 'Logout',
+        back: 'Back',
         hello: 'Hello',
         what_to_do: 'What would you like to do today?',
+
+        // Dashboard Cards
         cognitive_eval: 'Cognitive Evaluation',
         cognitive_desc: 'Test your memory today',
         minigames: 'Minigames',
@@ -67,6 +94,35 @@ const translations = {
         reminders: 'Reminders',
         reminders_desc: 'Meds and appointments',
         code_label: 'Your connection code',
+
+        // Juegos
+        minesweeper_title: 'Minesweeper',
+        minesweeper_desc: 'Left Click: Reveal | Right Click: Flag (🚩)',
+        memory_title: 'Memory Match',
+        simon_title: 'Simon Says',
+        math_title: 'Quick Math',
+        win_msg: 'You Win! 🎉',
+        lose_msg: 'Boom! 💥',
+        play_again: 'Play Again',
+        exit: 'Exit',
+
+        // Recordatorios
+        reminder_title: 'REMINDER',
+        acknowledge_btn: '✅ ACKNOWLEDGE',
+        past_reminder: 'MISSED / PAST',
+        active_reminder: 'RIGHT NOW',
+        no_reminders: 'You have no pending reminders.',
+        all_good: 'All caught up',
+
+        // Contacto
+        contact_title: 'Contact Us',
+        subject: 'Subject',
+        message: 'Message',
+        send_msg: 'Send Message',
+        msg_sent: 'Message Sent!',
+        msg_sent_desc: 'Thanks for contacting us. We will reply soon.',
+
+        // Ajustes
         settings_title: 'Settings',
         account_info: 'Account Information',
         name: 'Name',
@@ -78,26 +134,16 @@ const translations = {
         language_desc: 'Select interface language',
         session: 'Session',
         logout_full: 'Log out of this device',
-        back: 'Back',
-        reminder_title: 'REMINDER',
-        acknowledge_btn: '✅ ACKNOWLEDGE',
-        past_reminder: 'MISSED / PAST',
-        active_reminder: 'RIGHT NOW',
-        minesweeper_title: 'Minesweeper',
-        minesweeper_desc: 'Left Click: Reveal | Right Click: Flag (🚩)',
-        win_msg: 'You Win! 🎉',
-        lose_msg: 'Boom! 💥',
-        play_again: 'Play Again',
-        exit: 'Exit',
-        contact_title: 'Contact Us',
-        subject: 'Subject',
-        message: 'Message',
-        send_msg: 'Send Message',
-        msg_sent: 'Message Sent!',
-        msg_sent_desc: 'Thanks for contacting us. We will reply soon.',
         confirm_logout: 'Are you sure you want to log out?',
+
+        // Cuidador / Chat
         chat_caregiver: 'Chat with Caregiver',
-        no_caregivers: 'No linked caregivers yet.'
+        no_caregivers: 'No linked caregivers yet.',
+        caregiver_panel: 'Caregiver Panel',
+        link_new: 'Link New Patient',
+        my_patients: 'My Patients',
+        link_btn: 'Link',
+        no_patients: 'No linked patients.'
     }
 };
 
