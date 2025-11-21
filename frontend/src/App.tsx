@@ -10,7 +10,7 @@ import ChatWindow from './components/chat/ChatWindow';
 import NewsView from './components/news/NewsView';
 import ContactsView from './components/settings/ContactsView';
 import SettingsView from './components/settings/SettingsView';
-import Modal from './components/ui/Modal'; // Modal para el cuidador también
+import Modal from './components/ui/Modal';
 import { useTheme } from './context/ThemeContext';
 import { format } from 'date-fns';
 import { es, enUS } from 'date-fns/locale';
@@ -58,8 +58,7 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
     const dateLocale = language === 'en' ? enUS : es;
     const currentDate = format(new Date(), 'EEEE, d MMMM', { locale: dateLocale });
 
-    // Estado para Modal en Caregiver
-    const [modalConfig, setModalConfig] = useState<{ isOpen: boolean; type: any; title: string; message: string; onConfirm?: () => void }>({ isOpen: false, type: 'info', title: '', message: '' });
+    const [modalConfig, setModalConfig] = useState<{ isOpen: boolean; type: any; title: string; message: string; onConfirm?: () => void; cancelText?: string; confirmText?: string }>({ isOpen: false, type: 'info', title: '', message: '' });
 
     const openModal = (cfg: any) => setModalConfig({ ...cfg, isOpen: true });
     const closeModal = () => setModalConfig({ ...modalConfig, isOpen: false });
@@ -91,9 +90,34 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
             type: 'danger',
             title: t('logout'),
             message: t('confirm_logout'),
-            onConfirm: onLogout
+            onConfirm: onLogout,
+            confirmText: t('confirm_btn'),
+            cancelText: t('cancel_btn')
         });
     };
+
+    // --- Lógica Desvincular ---
+    const handleUnlinkClick = (patientId: number) => {
+        openModal({
+            type: 'danger',
+            title: t('unlink_patient_title'),
+            message: t('unlink_patient_msg'),
+            confirmText: t('unlink_btn'),
+            cancelText: t('cancel_btn'),
+            onConfirm: () => unlinkPatient(patientId)
+        });
+    };
+
+    const unlinkPatient = async (patientId: number) => {
+        try {
+            await axios.delete(`http://localhost:3000/users/patients/${patientId}`);
+            loadPatients();
+            closeModal();
+        } catch (e) {
+            console.error(e);
+        }
+    };
+    // ---------------------------
 
     const NavButton = ({ label, active, onClick, icon }: any) => (
         <button
@@ -136,14 +160,12 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
             <TopBar />
 
             <div className="container mx-auto px-4 max-w-6xl mt-4">
-                {/* --- VISTAS COMUNES --- */}
                 <div className="bg-white dark:bg-gray-800 rounded-[2rem] shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden transition-colors duration-300">
                     {view === 'news' && <NewsView onBack={() => setView('home')} />}
                     {view === 'contact' && <ContactsView onBack={() => setView('home')} />}
                     {view === 'settings' && <SettingsView user={user} onBack={() => setView('home')} onLogout={handleLogoutClick} />}
                 </div>
 
-                {/* --- VISTA INICIO (PANEL DEL CUIDADOR) --- */}
                 {view === 'home' && (
                     <div className="animate-fade-in-up">
                         {subView.type === 'list' && (
@@ -176,27 +198,18 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                             )}
                             {subView.type === 'list' && (
                                 <div className="grid gap-8 lg:grid-cols-3">
-                                    {/* Vincular */}
                                     <div className="lg:col-span-1">
                                         <div className="bg-blue-600 dark:bg-blue-800 p-8 rounded-[2.5rem] shadow-lg text-white h-fit sticky top-24">
                                             <h3 className="text-2xl font-black mb-2">{t('link_new')}</h3>
                                             <p className="text-blue-100 mb-6 text-sm leading-relaxed">{t('link_instruction')}</p>
-
                                             <div className="space-y-4">
-                                                <input
-                                                    type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())}
-                                                    placeholder="Ej: A1B2-C3D4"
-                                                    className="w-full bg-white/20 border-2 border-white/30 text-white placeholder-blue-200 p-4 rounded-2xl outline-none font-mono text-center text-xl uppercase focus:bg-white/30 focus:border-white transition-all"
-                                                />
-                                                <button onClick={handleLink} className="w-full bg-white text-blue-700 font-bold py-4 rounded-2xl hover:bg-blue-50 hover:shadow-lg transition-all transform active:scale-95">
-                                                    {t('link_btn')}
-                                                </button>
+                                                <input type="text" value={code} onChange={(e) => setCode(e.target.value.toUpperCase())} placeholder="Ej: A1B2-C3D4" className="w-full bg-white/20 border-2 border-white/30 text-white placeholder-blue-200 p-4 rounded-2xl outline-none font-mono text-center text-xl uppercase focus:bg-white/30 focus:border-white transition-all" />
+                                                <button onClick={handleLink} className="w-full bg-white text-blue-700 font-bold py-4 rounded-2xl hover:bg-blue-50 hover:shadow-lg transition-all transform active:scale-95">{t('link_btn')}</button>
                                             </div>
                                             {msg && <div className={`mt-6 p-4 rounded-xl text-sm font-bold text-center animate-pulse ${msg.startsWith('error') ? 'bg-red-500/20 text-red-100' : 'bg-green-500/20 text-green-100'}`}>{msg.split(':')[1]}</div>}
                                         </div>
                                     </div>
 
-                                    {/* Lista de Pacientes */}
                                     <div className="lg:col-span-2 space-y-6">
                                         <h3 className="text-2xl font-bold text-gray-800 dark:text-white pl-2">{t('my_patients')} ({linkedPatients.length})</h3>
                                         {linkedPatients.length === 0 ? (
@@ -206,7 +219,8 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                                             </div>
                                         ) : (
                                             linkedPatients.map(p => (
-                                                <div key={p.id} className="bg-white dark:bg-gray-800 p-6 rounded-[2rem] shadow-md border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 group">
+                                                <div key={p.id} className="relative bg-white dark:bg-gray-800 p-6 rounded-[2rem] shadow-md border border-gray-100 dark:border-gray-700 hover:shadow-xl transition-all duration-300 group">
+
                                                     <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
                                                         <div className="flex items-center gap-4">
                                                             <div className="w-16 h-16 bg-gradient-to-br from-blue-400 to-teal-400 rounded-2xl flex items-center justify-center text-2xl text-white font-bold shadow-lg">
@@ -221,10 +235,20 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
                                                                 <p className="text-xs font-mono text-blue-500 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-2 py-1 rounded-md w-fit">CODE: {p.patientCode}</p>
                                                             </div>
                                                         </div>
-                                                        <div className="flex flex-wrap gap-2 w-full md:w-auto">
-                                                            <button onClick={() => setActiveChat({id: p.id, name: p.name})} className="flex-1 md:flex-none bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 px-4 py-3 rounded-xl font-bold hover:bg-teal-100 dark:hover:bg-teal-900/40 transition flex items-center justify-center gap-2"><span>💬</span> {t('btn_chat')}</button>
-                                                            <button onClick={() => setSubView({ type: 'progress', patientId: p.id, patientName: p.name })} className="flex-1 md:flex-none bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-xl font-bold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition flex items-center justify-center gap-2"><span>📈</span> {t('btn_progress')}</button>
-                                                            <button onClick={() => setSubView({ type: 'reminders', patientId: p.id, patientName: p.name })} className="flex-1 md:flex-none bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 px-4 py-3 rounded-xl font-bold hover:bg-orange-100 dark:hover:bg-orange-900/40 transition flex items-center justify-center gap-2"><span>⏰</span> {t('btn_alerts')}</button>
+                                                        {/* Botones de Acción */}
+                                                        <div className="flex flex-wrap gap-2 w-full md:w-auto mt-2 md:mt-0">
+                                                            <button onClick={() => setActiveChat({id: p.id, name: p.name})} className="flex-1 md:flex-none bg-teal-50 dark:bg-teal-900/20 text-teal-700 dark:text-teal-300 px-4 py-3 rounded-xl font-bold hover:bg-teal-100 dark:hover:bg-teal-900/40 transition flex items-center justify-center gap-2 border border-transparent hover:border-teal-200"><span>💬</span> {t('btn_chat')}</button>
+                                                            <button onClick={() => setSubView({ type: 'progress', patientId: p.id, patientName: p.name })} className="flex-1 md:flex-none bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-4 py-3 rounded-xl font-bold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition flex items-center justify-center gap-2 border border-transparent hover:border-blue-200"><span>📈</span> {t('btn_progress')}</button>
+                                                            <button onClick={() => setSubView({ type: 'reminders', patientId: p.id, patientName: p.name })} className="flex-1 md:flex-none bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-300 px-4 py-3 rounded-xl font-bold hover:bg-orange-100 dark:hover:bg-orange-900/40 transition flex items-center justify-center gap-2 border border-transparent hover:border-orange-200"><span>⏰</span> {t('btn_alerts')}</button>
+
+                                                            {/* Nuevo Botón Desvincular */}
+                                                            <button
+                                                                onClick={() => handleUnlinkClick(p.id)}
+                                                                className="flex-1 md:flex-none bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 px-4 py-3 rounded-xl font-bold hover:bg-red-100 dark:hover:bg-red-900/40 transition flex items-center justify-center gap-2 border border-transparent hover:border-red-200"
+                                                                title="Desvincular paciente"
+                                                            >
+                                                                <span>🗑️</span> {t('unlink_btn')}
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>

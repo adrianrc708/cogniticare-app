@@ -12,7 +12,7 @@ const translations = {
         hello: 'Hola',
         what_to_do: '¿Qué te gustaría hacer hoy?',
 
-        // Dashboard Cards (Paciente)
+        // Dashboard Cards
         cognitive_eval: 'Evaluación Cognitiva',
         cognitive_desc: 'Pon a prueba tu memoria hoy',
         minigames: 'Minijuegos',
@@ -64,19 +64,53 @@ const translations = {
         logout_full: 'Cerrar Sesión en este dispositivo',
         confirm_logout: '¿Estás seguro de que deseas cerrar sesión?',
 
-        // Cuidador / Chat
+        // Cuidador / Panel Principal
         chat_caregiver: 'Chat con Cuidador',
         no_caregivers: 'No tienes cuidadores vinculados aún.',
         caregiver_panel: 'Panel de Cuidador',
+        caregiver_subtitle: 'Gestiona tus pacientes vinculados',
         link_new: 'Vincular Nuevo Paciente',
-        link_instruction: 'Ingresa el código único del paciente para comenzar a monitorearlo.', // NUEVO
+        link_instruction: 'Ingresa el código único del paciente para comenzar a monitorearlo.',
         my_patients: 'Mis Pacientes',
         link_btn: 'Vincular',
         no_patients: 'No hay pacientes vinculados.',
-        status_active: 'Activo', // NUEVO
-        btn_chat: 'Chat',        // NUEVO
-        btn_progress: 'Progreso', // NUEVO
-        btn_alerts: 'Alertas'     // NUEVO
+        status_active: 'Activo',
+        btn_chat: 'Chat',
+        btn_progress: 'Progreso',
+        btn_alerts: 'Alertas',
+
+        // Cuidador / Progreso
+        progress_title: 'Progreso Cognitivo',
+        progress_patient: 'Paciente',
+        progress_no_data: 'Aún no hay evaluaciones registradas.',
+
+        // Cuidador / Alertas
+        reminders_title: 'Alertas y Citas',
+        reminders_manage: 'Gestionando para:',
+        new_alert: 'Nueva Alerta',
+        alert_title: 'Título',
+        alert_details: 'Detalles (Opcional)',
+        alert_date: 'Fecha',
+        alert_time: 'Hora',
+        btn_save: 'Programar Alerta',
+        btn_saving: 'Guardando...',
+        scheduled_alerts: 'Alertas Programadas',
+        no_active_alerts: 'No hay alertas activas.',
+
+        // Modales y Advertencias
+        alert_created: '¡Alerta Creada!',
+        alert_created_msg: 'El recordatorio se ha programado correctamente.',
+        alert_error: 'No se pudo crear',
+        delete_alert_title: '¿Eliminar Alerta?',
+        delete_alert_msg: 'Esta acción no se puede deshacer. El paciente dejará de ver este recordatorio.',
+        delete_btn: 'Sí, eliminar',
+
+        unlink_patient_title: '¿Desvincular Paciente?',
+        unlink_patient_msg: 'Dejarás de tener acceso a su progreso y alertas. El paciente tendrá que darte su código nuevamente.',
+        unlink_btn: 'Desvincular',
+        confirm_btn: 'Aceptar',
+        cancel_btn: 'Cancelar',
+        understand_btn: 'Entendido'
     },
     en: {
         // General
@@ -141,19 +175,53 @@ const translations = {
         logout_full: 'Log out of this device',
         confirm_logout: 'Are you sure you want to log out?',
 
-        // Cuidador / Chat
+        // Cuidador / Panel
         chat_caregiver: 'Chat with Caregiver',
         no_caregivers: 'No linked caregivers yet.',
         caregiver_panel: 'Caregiver Panel',
+        caregiver_subtitle: 'Manage your linked patients',
         link_new: 'Link New Patient',
-        link_instruction: 'Enter the unique patient code to start monitoring them.', // NUEVO
+        link_instruction: 'Enter the unique patient code to start monitoring them.',
         my_patients: 'My Patients',
         link_btn: 'Link',
         no_patients: 'No linked patients.',
-        status_active: 'Active', // NUEVO
-        btn_chat: 'Chat',        // NUEVO
-        btn_progress: 'Progress', // NUEVO
-        btn_alerts: 'Alerts'      // NUEVO
+        status_active: 'Active',
+        btn_chat: 'Chat',
+        btn_progress: 'Progress',
+        btn_alerts: 'Alerts',
+
+        // Cuidador / Progreso
+        progress_title: 'Cognitive Progress',
+        progress_patient: 'Patient',
+        progress_no_data: 'No evaluations recorded yet.',
+
+        // Cuidador / Alertas
+        reminders_title: 'Alerts & Appointments',
+        reminders_manage: 'Managing for:',
+        new_alert: 'New Alert',
+        alert_title: 'Title',
+        alert_details: 'Details (Optional)',
+        alert_date: 'Date',
+        alert_time: 'Time',
+        btn_save: 'Schedule Alert',
+        btn_saving: 'Saving...',
+        scheduled_alerts: 'Scheduled Alerts',
+        no_active_alerts: 'No active alerts.',
+
+        // Modales y Advertencias
+        alert_created: 'Alert Created!',
+        alert_created_msg: 'The reminder has been scheduled successfully.',
+        alert_error: 'Could not create',
+        delete_alert_title: 'Delete Alert?',
+        delete_alert_msg: 'This action cannot be undone. The patient will no longer see this reminder.',
+        delete_btn: 'Yes, delete',
+
+        unlink_patient_title: 'Unlink Patient?',
+        unlink_patient_msg: 'You will lose access to their progress and alerts. The patient will need to give you their code again.',
+        unlink_btn: 'Unlink',
+        confirm_btn: 'Accept',
+        cancel_btn: 'Cancel',
+        understand_btn: 'Understood'
     }
 };
 

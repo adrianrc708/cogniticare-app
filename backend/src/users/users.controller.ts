@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, Request, UseGuards, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Body, Get, Request, UseGuards, HttpException, HttpStatus, Delete, Param, ParseIntPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { LinkPatientDto } from './users.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -19,6 +19,14 @@ export class UsersController {
 
         return this.usersService.linkPatient(caregiverId, linkPatientDto);
     }
+
+    // --- NUEVO ENDPOINT ---
+    @Delete('patients/:id')
+    async unlinkPatient(@Param('id', ParseIntPipe) patientId: number, @Request() req: any) {
+        const caregiverId = req.user.id;
+        return this.usersService.unlinkPatient(caregiverId, patientId);
+    }
+    // ----------------------
 
     @Get('patients')
     async getLinkedPatients(@Request() req: any) {

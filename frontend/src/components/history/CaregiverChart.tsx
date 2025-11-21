@@ -8,13 +8,12 @@ import {
     Title,
     Tooltip,
     Legend,
-    Filler // Importamos Filler para el efecto de área sombreada
+    Filler
 } from 'chart.js';
 import { Line } from 'react-chartjs-2';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-// Asumimos que podemos usar el contexto para el tema (colores)
+import { es, enUS } from 'date-fns/locale';
 import { useTheme } from '../../context/ThemeContext';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler);
@@ -28,7 +27,10 @@ interface Props {
 const CaregiverChart: React.FC<Props> = ({ patientId, patientName, onBack }) => {
     const [chartData, setChartData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const { darkMode } = useTheme(); // Para ajustar colores del gráfico según el tema
+    const { darkMode, t, language } = useTheme();
+
+    // Selección de locale
+    const dateLocale = language === 'en' ? enUS : es;
 
     useEffect(() => {
         const fetchData = async () => {
@@ -41,9 +43,9 @@ const CaregiverChart: React.FC<Props> = ({ patientId, patientName, onBack }) => 
                     return;
                 }
 
-                // Formatear fechas de forma corta (ej: "21 nov")
+                // Fechas localizadas
                 const labels = rawData.map((entry: any) =>
-                    format(new Date(entry.completedAt), 'd MMM', { locale: es })
+                    format(new Date(entry.completedAt), 'd MMM', { locale: dateLocale })
                 );
                 const scores = rawData.map((entry: any) => entry.score);
 
@@ -51,18 +53,18 @@ const CaregiverChart: React.FC<Props> = ({ patientId, patientName, onBack }) => 
                     labels,
                     datasets: [
                         {
-                            label: 'Puntaje',
+                            label: t('progress_title'), // Traducido (aunque Chart.js usa label interno)
                             data: scores,
-                            borderColor: '#0D9488', // Teal-600
+                            borderColor: '#0D9488',
                             backgroundColor: (context: any) => {
                                 const ctx = context.chart.ctx;
                                 const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                                gradient.addColorStop(0, 'rgba(13, 148, 136, 0.5)'); // Teal con opacidad
+                                gradient.addColorStop(0, 'rgba(13, 148, 136, 0.5)');
                                 gradient.addColorStop(1, 'rgba(13, 148, 136, 0.0)');
                                 return gradient;
                             },
                             fill: true,
-                            tension: 0.4, // Curva suave
+                            tension: 0.4,
                             pointRadius: 6,
                             pointHoverRadius: 10,
                             pointBackgroundColor: '#fff',
@@ -79,9 +81,8 @@ const CaregiverChart: React.FC<Props> = ({ patientId, patientName, onBack }) => 
         };
 
         fetchData();
-    }, [patientId]);
+    }, [patientId, language]); // Recargar si cambia el idioma
 
-    // Configuración limpia del gráfico
     const options = {
         responsive: true,
         maintainAspectRatio: false,
@@ -89,16 +90,16 @@ const CaregiverChart: React.FC<Props> = ({ patientId, patientName, onBack }) => 
             y: {
                 beginAtZero: true,
                 max: 10,
-                grid: { display: false }, // Sin cuadrícula horizontal
+                grid: { display: false },
                 border: { display: false },
                 ticks: {
                     font: { size: 14, weight: 'bold' },
-                    color: darkMode ? '#9CA3AF' : '#4B5563', // Gray-400 / Gray-600
+                    color: darkMode ? '#9CA3AF' : '#4B5563',
                     padding: 10
                 }
             },
             x: {
-                grid: { display: false }, // Sin cuadrícula vertical
+                grid: { display: false },
                 border: { display: false },
                 ticks: {
                     font: { size: 12 },
@@ -112,7 +113,7 @@ const CaregiverChart: React.FC<Props> = ({ patientId, patientName, onBack }) => 
         plugins: {
             legend: { display: false },
             tooltip: {
-                backgroundColor: 'rgba(15, 23, 42, 0.9)', // Slate-900
+                backgroundColor: 'rgba(15, 23, 42, 0.9)',
                 padding: 12,
                 titleFont: { size: 14 },
                 bodyFont: { size: 16, weight: 'bold' },
@@ -135,25 +136,20 @@ const CaregiverChart: React.FC<Props> = ({ patientId, patientName, onBack }) => 
                         <span className="text-xl font-bold">←</span>
                     </button>
                     <div>
-                        <h2 className="text-3xl font-black text-gray-800 dark:text-white">Progreso Cognitivo</h2>
-                        <p className="text-gray-500 dark:text-gray-400 font-medium">Paciente: {patientName}</p>
+                        <h2 className="text-3xl font-black text-gray-800 dark:text-white">{t('progress_title')}</h2>
+                        <p className="text-gray-500 dark:text-gray-400 font-medium">{t('progress_patient')}: {patientName}</p>
                     </div>
-                </div>
-                {/* Indicador de estado (opcional) */}
-                <div className="hidden md:flex items-center gap-2 bg-teal-50 dark:bg-teal-900/20 px-4 py-2 rounded-full">
-                    <span className="w-2 h-2 bg-teal-500 rounded-full animate-pulse"></span>
-                    <span className="text-sm font-bold text-teal-700 dark:text-teal-300">Datos en tiempo real</span>
                 </div>
             </div>
 
             {/* Área del Gráfico */}
             <div className="flex-1 w-full min-h-[400px] relative bg-gradient-to-b from-gray-50 to-white dark:from-gray-700/30 dark:to-gray-800 rounded-[2rem] p-4 border border-gray-100 dark:border-gray-700">
                 {loading ? (
-                    <div className="flex items-center justify-center h-full text-gray-400 text-xl animate-pulse">Cargando datos...</div>
+                    <div className="flex items-center justify-center h-full text-gray-400 text-xl animate-pulse">Loading...</div>
                 ) : !chartData ? (
                     <div className="flex flex-col items-center justify-center h-full text-gray-400">
                         <span className="text-6xl mb-4">📊</span>
-                        <p className="text-xl">Aún no hay evaluaciones registradas.</p>
+                        <p className="text-xl">{t('progress_no_data')}</p>
                     </div>
                 ) : (
                     // @ts-ignore

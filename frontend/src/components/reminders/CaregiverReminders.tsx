@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
-import Modal from '../ui/Modal'; // Importamos el Modal
+import { es, enUS } from 'date-fns/locale';
+import Modal from '../ui/Modal';
+import { useTheme } from '../../context/ThemeContext';
 
 interface Reminder {
     id: number;
@@ -27,7 +28,9 @@ const CaregiverReminders: React.FC<Props> = ({ patientId, patientName, onBack })
     const [time, setTime] = useState('');
     const [loading, setLoading] = useState(false);
 
-    // Configuración del Modal
+    const { t, language, darkMode } = useTheme();
+    const dateLocale = language === 'en' ? enUS : es;
+
     const [modalConfig, setModalConfig] = useState<{
         isOpen: boolean;
         type: 'danger' | 'info' | 'success' | 'warning';
@@ -35,12 +38,16 @@ const CaregiverReminders: React.FC<Props> = ({ patientId, patientName, onBack })
         message: string;
         onConfirm?: () => void;
         singleButton?: boolean;
+        confirmText?: string;
+        cancelText?: string;
     }>({ isOpen: false, type: 'info', title: '', message: '' });
 
     const openModal = (cfg: any) => setModalConfig({ ...cfg, isOpen: true });
     const closeModal = () => setModalConfig({ ...modalConfig, isOpen: false });
 
-    useEffect(() => { loadReminders(); }, [patientId]);
+    useEffect(() => {
+        loadReminders();
+    }, [patientId]);
 
     const loadReminders = async () => {
         try {
@@ -67,23 +74,21 @@ const CaregiverReminders: React.FC<Props> = ({ patientId, patientName, onBack })
             setTitle(''); setDescription(''); setDate(''); setTime('');
             loadReminders();
 
-            // Confirmación visual de éxito (opcional, o simplemente recargar)
             openModal({
                 type: 'success',
-                title: '¡Alerta Creada!',
-                message: 'El recordatorio se ha programado correctamente.',
+                title: t('alert_created'),
+                message: t('alert_created_msg'),
                 singleButton: true,
-                confirmText: 'Aceptar'
+                confirmText: t('confirm_btn')
             });
 
         } catch (e: any) {
-            // Manejo de error con Modal
             openModal({
                 type: 'warning',
-                title: 'No se pudo crear',
-                message: e.response?.data?.message || 'Verifica que la fecha no sea en el pasado.',
+                title: t('alert_error'),
+                message: e.response?.data?.message || 'Error',
                 singleButton: true,
-                confirmText: 'Entendido'
+                confirmText: t('understand_btn')
             });
         } finally {
             setLoading(false);
@@ -93,9 +98,10 @@ const CaregiverReminders: React.FC<Props> = ({ patientId, patientName, onBack })
     const handleDeleteAttempt = (id: number) => {
         openModal({
             type: 'danger',
-            title: '¿Eliminar Alerta?',
-            message: 'Esta acción no se puede deshacer. El paciente dejará de ver este recordatorio.',
-            confirmText: 'Sí, eliminar',
+            title: t('delete_alert_title'),
+            message: t('delete_alert_msg'),
+            confirmText: t('delete_btn'),
+            cancelText: t('cancel_btn'),
             onConfirm: () => confirmDelete(id)
         });
     };
@@ -106,13 +112,12 @@ const CaregiverReminders: React.FC<Props> = ({ patientId, patientName, onBack })
             loadReminders();
             closeModal();
         } catch (e) {
-            openModal({ type: 'danger', title: 'Error', message: 'No se pudo eliminar.', singleButton: true });
+            openModal({ type: 'danger', title: 'Error', message: 'Error deleting.', singleButton: true });
         }
     };
 
     return (
         <div className="bg-white dark:bg-gray-800 rounded-[2rem] p-6 md:p-10 h-full flex flex-col">
-            {/* El componente Modal se renderiza aquí */}
             <Modal {...modalConfig} onClose={closeModal} />
 
             {/* Header */}
@@ -122,8 +127,8 @@ const CaregiverReminders: React.FC<Props> = ({ patientId, patientName, onBack })
                         <span className="text-xl font-bold">←</span>
                     </button>
                     <div>
-                        <h2 className="text-3xl font-black text-gray-800 dark:text-white">Alertas y Citas</h2>
-                        <p className="text-gray-500 dark:text-gray-400 font-medium">Gestionando para: <span className="text-teal-600 dark:text-teal-400">{patientName}</span></p>
+                        <h2 className="text-3xl font-black text-gray-800 dark:text-white">{t('reminders_title')}</h2>
+                        <p className="text-gray-500 dark:text-gray-400 font-medium">{t('reminders_manage')} <span className="text-teal-600 dark:text-teal-400">{patientName}</span></p>
                     </div>
                 </div>
                 <div className="hidden md:block text-5xl">⏰</div>
@@ -133,45 +138,53 @@ const CaregiverReminders: React.FC<Props> = ({ patientId, patientName, onBack })
                 {/* Columna Izquierda: Formulario */}
                 <div className="lg:col-span-4 bg-blue-50 dark:bg-gray-700/30 p-6 rounded-[2rem] border border-blue-100 dark:border-gray-600 h-fit sticky top-4">
                     <h3 className="text-xl font-bold text-blue-800 dark:text-blue-300 mb-6 flex items-center gap-2">
-                        <span>➕</span> Nueva Alerta
+                        <span>➕</span> {t('new_alert')}
                     </h3>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
-                            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 ml-1">Título</label>
+                            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 ml-1">{t('alert_title')}</label>
                             <input
-                                type="text" placeholder="Ej: Pastilla Presión"
+                                type="text" placeholder="..."
                                 value={title} onChange={(e) => setTitle(e.target.value)}
                                 className="w-full bg-white dark:bg-gray-800 border-2 border-transparent focus:border-blue-400 dark:focus:border-blue-500 p-4 rounded-xl outline-none text-gray-800 dark:text-white font-medium shadow-sm transition-all"
                                 required
                             />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 ml-1">Detalles (Opcional)</label>
+                            <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 ml-1">{t('alert_details')}</label>
                             <textarea
-                                placeholder="Ej: Tomar con agua..."
+                                placeholder="..."
                                 value={description} onChange={(e) => setDescription(e.target.value)}
                                 className="w-full bg-white dark:bg-gray-800 border-2 border-transparent focus:border-blue-400 dark:focus:border-blue-500 p-4 rounded-xl outline-none text-gray-800 dark:text-white font-medium shadow-sm transition-all h-24 resize-none"
                             />
                         </div>
                         <div className="grid grid-cols-2 gap-3">
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 ml-1">Fecha</label>
-                                <input
-                                    type="date"
-                                    value={date} onChange={(e) => setDate(e.target.value)}
-                                    className="w-full bg-white dark:bg-gray-800 p-3 rounded-xl text-gray-700 dark:text-white outline-none border-2 border-transparent focus:border-blue-400"
-                                    required
-                                />
+                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 ml-1">{t('alert_date')}</label>
+                                {/* Input de fecha personalizado */}
+                                <div className="relative">
+                                    <input
+                                        type="date"
+                                        value={date} onChange={(e) => setDate(e.target.value)}
+                                        className="w-full bg-white dark:bg-gray-800 p-3 rounded-xl text-gray-700 dark:text-white outline-none border-2 border-transparent focus:border-blue-400 cursor-pointer appearance-none min-h-[50px]"
+                                        required
+                                        style={{ colorScheme: darkMode ? 'dark' : 'light' }}
+                                    />
+                                </div>
                             </div>
                             <div>
-                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 ml-1">Hora</label>
-                                <input
-                                    type="time"
-                                    value={time} onChange={(e) => setTime(e.target.value)}
-                                    className="w-full bg-white dark:bg-gray-800 p-3 rounded-xl text-gray-700 dark:text-white outline-none border-2 border-transparent focus:border-blue-400"
-                                    required
-                                />
+                                <label className="block text-xs font-bold text-gray-500 dark:text-gray-400 uppercase mb-1 ml-1">{t('alert_time')}</label>
+                                {/* Input de hora personalizado */}
+                                <div className="relative">
+                                    <input
+                                        type="time"
+                                        value={time} onChange={(e) => setTime(e.target.value)}
+                                        className="w-full bg-white dark:bg-gray-800 p-3 rounded-xl text-gray-700 dark:text-white outline-none border-2 border-transparent focus:border-blue-400 cursor-pointer appearance-none min-h-[50px]"
+                                        required
+                                        style={{ colorScheme: darkMode ? 'dark' : 'light' }}
+                                    />
+                                </div>
                             </div>
                         </div>
                         <button
@@ -179,19 +192,19 @@ const CaregiverReminders: React.FC<Props> = ({ patientId, patientName, onBack })
                             disabled={loading}
                             className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 hover:shadow-lg transition-all transform active:scale-95"
                         >
-                            {loading ? 'Guardando...' : 'Programar Alerta'}
+                            {loading ? t('btn_saving') : t('btn_save')}
                         </button>
                     </form>
                 </div>
 
                 {/* Columna Derecha: Lista */}
                 <div className="lg:col-span-8 space-y-4">
-                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4 pl-2">Alertas Programadas ({reminders.length})</h3>
+                    <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-4 pl-2">{t('scheduled_alerts')} ({reminders.length})</h3>
 
                     {reminders.length === 0 ? (
                         <div className="flex flex-col items-center justify-center py-16 bg-gray-50 dark:bg-gray-700/20 rounded-[2.5rem] border-2 border-dashed border-gray-200 dark:border-gray-600">
                             <span className="text-5xl mb-4 opacity-50">📅</span>
-                            <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">No hay alertas activas.</p>
+                            <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">{t('no_active_alerts')}</p>
                         </div>
                     ) : (
                         <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
@@ -203,20 +216,19 @@ const CaregiverReminders: React.FC<Props> = ({ patientId, patientName, onBack })
                                                 {r.title}
                                             </h4>
                                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider border ${r.patientAcknowledged ? 'bg-green-200 text-green-800 border-green-300' : 'bg-yellow-100 text-yellow-700 border-yellow-200'}`}>
-                                                {r.patientAcknowledged ? 'CONFIRMADO' : 'PENDIENTE'}
+                                                {r.patientAcknowledged ? 'CONFIRMED' : 'PENDING'}
                                             </span>
                                         </div>
-                                        <p className="text-gray-600 dark:text-gray-300 text-base mb-3 leading-snug">{r.description || "Sin detalles adicionales."}</p>
+                                        <p className="text-gray-600 dark:text-gray-300 text-base mb-3 leading-snug">{r.description || "---"}</p>
                                         <div className="flex items-center gap-4 text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700/50 px-4 py-2 rounded-lg w-fit">
-                                            <span className="flex items-center gap-1">📅 {format(new Date(r.scheduledTime), 'dd MMM yyyy', { locale: es })}</span>
+                                            <span className="flex items-center gap-1">📅 {format(new Date(r.scheduledTime), 'dd MMM yyyy', { locale: dateLocale })}</span>
                                             <span className="w-1 h-1 bg-gray-400 rounded-full"></span>
-                                            <span className="flex items-center gap-1">🕒 {format(new Date(r.scheduledTime), 'HH:mm', { locale: es })}</span>
+                                            <span className="flex items-center gap-1">🕒 {format(new Date(r.scheduledTime), 'HH:mm', { locale: dateLocale })}</span>
                                         </div>
                                     </div>
                                     <button
                                         onClick={() => handleDeleteAttempt(r.id)}
                                         className="w-12 h-12 flex items-center justify-center bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 rounded-full hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
-                                        title="Eliminar alerta"
                                     >
                                         🗑️
                                     </button>

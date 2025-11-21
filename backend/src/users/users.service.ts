@@ -50,6 +50,24 @@ export class UsersService {
         };
     }
 
+    // --- NUEVO MÉTODO PARA DESVINCULAR ---
+    async unlinkPatient(caregiverId: number, patientId: number): Promise<void> {
+        const caregiver = await this.userRepository.findOne({
+            where: { id: caregiverId, role: UserRole.CAREGIVER },
+            relations: ['patients'],
+        });
+
+        if (!caregiver) {
+            throw new HttpException('Cuidador no encontrado.', HttpStatus.NOT_FOUND);
+        }
+
+        // Filtramos el paciente a eliminar
+        caregiver.patients = caregiver.patients.filter(p => p.id !== patientId);
+
+        await this.userRepository.save(caregiver);
+    }
+    // -------------------------------------
+
     async getLinkedPatients(caregiverId: number): Promise<User[]> {
         const caregiver = await this.userRepository.findOne({
             where: { id: caregiverId, role: UserRole.CAREGIVER },
@@ -69,7 +87,6 @@ export class UsersService {
         } as User));
     }
 
-    // NUEVO: Obtener cuidadores vinculados al paciente
     async getLinkedCaregivers(patientId: number): Promise<User[]> {
         const patient = await this.userRepository.findOne({
             where: { id: patientId, role: UserRole.PATIENT },
