@@ -1,0 +1,1 @@
+// Componente raíz de la aplicación React. Aquí se define la navegación y el layout principal.

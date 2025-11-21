@@ -1,0 +1,8 @@
+{
+  "name": "cogniticare-frontend",
+  "version": "1.0.0",
+  "description": "Interfaz de usuario de CogniCare con React",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {}
+}

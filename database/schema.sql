@@ -1,0 +1,1 @@
+-- Script SQL para crear las tablas de MySQL: Usuarios, Evaluaciones, Recordatorios, etc.

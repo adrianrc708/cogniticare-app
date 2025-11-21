@@ -1,0 +1,8 @@
+{
+  "name": "cogniticare-backend",
+  "version": "1.0.0",
+  "description": "API REST para CogniCare",
+  "scripts": {},
+  "dependencies": {},
+  "devDependencies": {}
+}
