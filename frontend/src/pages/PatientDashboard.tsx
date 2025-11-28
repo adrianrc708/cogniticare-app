@@ -27,6 +27,7 @@ const PatientDashboard: React.FC<{ user: any, onLogout: () => void }> = ({ user,
         message: string;
         onConfirm?: () => void;
         singleButton?: boolean;
+        confirmText?: string;
     }>({ isOpen: false, type: 'info', title: '', message: '' });
 
     const openModal = (config: any) => setModalConfig({ ...config, isOpen: true });
@@ -127,7 +128,7 @@ const PatientDashboard: React.FC<{ user: any, onLogout: () => void }> = ({ user,
                 singleButton={modalConfig.singleButton}
                 confirmText={modalConfig.confirmText || 'Aceptar'}
             />
-
+            
             <TopBar />
 
             <div className="container mx-auto px-4 max-w-6xl mt-4">

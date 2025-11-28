@@ -11,7 +11,7 @@ ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend)
 const PatientHistoryChart: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     const [chartData, setChartData] = useState<any>(null);
     const [loading, setLoading] = useState(true);
-    const { t, language, darkMode } = useTheme();
+    const { t, language } = useTheme();
     const dateLocale = language === 'en' ? enUS : es;
 
     useEffect(() => {
