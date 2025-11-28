@@ -27,7 +27,7 @@ const ChatWindow: React.FC<Props> = ({ currentUserId, contactId, contactName, on
 
     const loadMessages = async () => {
         try {
-            const res = await axios.get(`http://localhost:3000/chat?contactId=${contactId}`);
+            const res = await axios.get(`https://cogniticare-app.onrender.com/chat?contactId=${contactId}`);
             setMessages(res.data);
         } catch (e) { console.error(e); }
     };
@@ -47,7 +47,7 @@ const ChatWindow: React.FC<Props> = ({ currentUserId, contactId, contactName, on
         if (!newMessage.trim()) return;
 
         try {
-            await axios.post('http://localhost:3000/chat', {
+            await axios.post('https://cogniticare-app.onrender.com/chat', {
                 receiverId: contactId,
                 content: newMessage
             });

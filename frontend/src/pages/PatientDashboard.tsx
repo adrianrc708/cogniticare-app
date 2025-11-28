@@ -44,7 +44,7 @@ const PatientDashboard: React.FC<{ user: any, onLogout: () => void }> = ({ user,
 
     const openCaregiverChat = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/users/caregivers');
+            const res = await axios.get('https://cogniticare-app.onrender.com/users/caregivers');
             if (res.data && res.data.length > 0) {
                 setActiveChat({ id: res.data[0].id, name: res.data[0].name });
             } else {

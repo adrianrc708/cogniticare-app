@@ -35,7 +35,7 @@ const CaregiverChart: React.FC<Props> = ({ patientId, patientName, onBack }) => 
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get(`http://localhost:3000/evaluations/history/caregiver/${patientId}`);
+                const res = await axios.get(`https://cogniticare-app.onrender.com/evaluations/history/caregiver/${patientId}`);
                 const rawData = res.data;
 
                 if (rawData.length === 0) {

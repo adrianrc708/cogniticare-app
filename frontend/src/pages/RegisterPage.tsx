@@ -16,7 +16,7 @@ const RegisterPage: React.FC<RegisterProps> = ({ onRegisterSuccess, onSwitchToLo
     const [loading, setLoading] = useState(false);
     const { t } = useTheme();
 
-    const API_URL = 'http://localhost:3000/auth/register';
+    const API_URL = 'https://cogniticare-app.onrender.com/auth/register';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

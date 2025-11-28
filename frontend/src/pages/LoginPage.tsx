@@ -14,7 +14,7 @@ const LoginPage: React.FC<LoginProps> = ({ onLoginSuccess, onSwitchToRegister })
     const [loading, setLoading] = useState(false);
     const { t } = useTheme(); // Usar el contexto para traducciones
 
-    const API_URL = 'http://localhost:3000/auth/login';
+    const API_URL = 'https://cogniticare-app.onrender.com/auth/login';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

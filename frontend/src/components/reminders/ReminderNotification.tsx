@@ -10,7 +10,7 @@ const ReminderNotification: React.FC = () => {
 
     const checkReminders = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/reminders/active');
+            const res = await axios.get('https://cogniticare-app.onrender.com/reminders/active');
 
             if (res.data && res.data.length > 0) {
                 const now = new Date().getTime();
@@ -63,7 +63,7 @@ const ReminderNotification: React.FC = () => {
     const handleAcknowledge = async () => {
         if (!activeReminder) return;
         try {
-            await axios.patch(`http://localhost:3000/reminders/${activeReminder.id}/acknowledge`);
+            await axios.patch(`https://cogniticare-app.onrender.com/reminders/${activeReminder.id}/acknowledge`);
             setActiveReminder(null);
             checkReminders();
         } catch (e) {}

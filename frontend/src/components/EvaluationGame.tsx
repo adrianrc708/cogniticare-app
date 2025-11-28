@@ -13,7 +13,7 @@ const EvaluationGame: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
     const { t } = useTheme(); // <-- Usar hook
 
     useEffect(() => {
-        axios.get('http://localhost:3000/evaluations/questions')
+        axios.get('https://cogniticare-app.onrender.com/evaluations/questions')
             .then(res => { setQuestions(res.data); setLoading(false); })
             .catch(() => setLoading(false));
     }, []);
@@ -27,7 +27,7 @@ const EvaluationGame: React.FC<{ onFinish: () => void }> = ({ onFinish }) => {
 
     const finishGame = async (finalScore: number) => {
         setFinished(true);
-        try { await axios.post('http://localhost:3000/evaluations/submit', { score: finalScore, total: questions.length }); } catch (e) {}
+        try { await axios.post('https://cogniticare-app.onrender.com/evaluations/submit', { score: finalScore, total: questions.length }); } catch (e) {}
     };
 
     if (loading) return <div className="p-20 text-center text-2xl text-teal-600 dark:text-teal-400 font-bold animate-pulse">{t('eval_loading')}</div>;

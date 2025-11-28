@@ -17,7 +17,7 @@ const PatientHistoryChart: React.FC<{ onBack: () => void }> = ({ onBack }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const res = await axios.get('http://localhost:3000/evaluations/history/me/monthly');
+                const res = await axios.get('https://cogniticare-app.onrender.com/evaluations/history/me/monthly');
                 const rawData = res.data;
                 const now = new Date();
                 const daysInMonth = getDaysInMonth(now);

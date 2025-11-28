@@ -28,7 +28,7 @@ const App: React.FC = () => {
 
     useEffect(() => {
         if (token) {
-            axios.get('http://localhost:3000/users/me')
+            axios.get('https://cogniticare-app.onrender.com/users/me')
                 .then(res => { setUser(res.data); setCurrentPage('home'); })
                 .catch(() => handleLogout());
         } else {
@@ -67,7 +67,7 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
 
     const loadPatients = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/users/patients');
+            const res = await axios.get('https://cogniticare-app.onrender.com/users/patients');
             setLinkedPatients(res.data);
         } catch (e) { console.error(e); }
     };
@@ -76,7 +76,7 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
         if (!code.trim()) return;
         setMsg('');
         try {
-            await axios.post('http://localhost:3000/users/link-patient', { patientCode: code });
+            await axios.post('https://cogniticare-app.onrender.com/users/link-patient', { patientCode: code });
             setMsg('success:OK');
             setCode('');
             loadPatients();
@@ -110,7 +110,7 @@ const CaregiverView = ({ user, onLogout }: { user: any, onLogout: () => void }) 
 
     const unlinkPatient = async (patientId: number) => {
         try {
-            await axios.delete(`http://localhost:3000/users/patients/${patientId}`);
+            await axios.delete(`https://cogniticare-app.onrender.com/users/patients/${patientId}`);
             loadPatients();
             closeModal();
         } catch (e) { console.error(e); }

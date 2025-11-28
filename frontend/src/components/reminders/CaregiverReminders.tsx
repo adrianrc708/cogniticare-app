@@ -27,7 +27,7 @@ const CaregiverReminders: React.FC<Props> = ({ patientId, patientName, onBack })
 
     const loadReminders = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/reminders/caregiver');
+            const res = await axios.get('https://cogniticare-app.onrender.com/reminders/caregiver');
             const patientReminders = res.data.filter((r: any) => r.patient.id === patientId);
             setReminders(patientReminders);
         } catch (e) { console.error(e); }
@@ -40,7 +40,7 @@ const CaregiverReminders: React.FC<Props> = ({ patientId, patientName, onBack })
         const scheduledTime = new Date(`${date}T${time}`);
 
         try {
-            await axios.post('http://localhost:3000/reminders', { patientId, title, description, scheduledTime });
+            await axios.post('https://cogniticare-app.onrender.com/reminders', { patientId, title, description, scheduledTime });
             setTitle(''); setDescription(''); setDate(''); setTime('');
             loadReminders();
             openModal({ type: 'success', title: t('modal_alert_created'), message: t('modal_alert_created_msg'), singleButton: true, confirmText: t('btn_accept') });
@@ -67,7 +67,7 @@ const CaregiverReminders: React.FC<Props> = ({ patientId, patientName, onBack })
     };
 
     const confirmDelete = async (id: number) => {
-        try { await axios.delete(`http://localhost:3000/reminders/${id}`); loadReminders(); closeModal(); } catch (e) { openModal({ type: 'danger', title: 'Error', message: 'Error', singleButton: true }); }
+        try { await axios.delete(`https://cogniticare-app.onrender.com/reminders/${id}`); loadReminders(); closeModal(); } catch (e) { openModal({ type: 'danger', title: 'Error', message: 'Error', singleButton: true }); }
     };
 
     return (

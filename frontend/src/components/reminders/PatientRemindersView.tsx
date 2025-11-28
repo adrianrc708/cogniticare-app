@@ -11,7 +11,7 @@ const PatientRemindersView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const loadReminders = async () => {
         try {
-            const res = await axios.get('http://localhost:3000/reminders/active');
+            const res = await axios.get('https://cogniticare-app.onrender.com/reminders/active');
             const sorted = res.data.sort((a: any, b: any) => new Date(b.scheduledTime).getTime() - new Date(a.scheduledTime).getTime());
             setReminders(sorted);
         } catch (e) {
@@ -25,7 +25,7 @@ const PatientRemindersView: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
     const handleConfirm = async (id: number) => {
         try {
-            await axios.patch(`http://localhost:3000/reminders/${id}/acknowledge`);
+            await axios.patch(`https://cogniticare-app.onrender.com/reminders/${id}/acknowledge`);
             loadReminders();
         } catch (e) { alert("Error al confirmar"); }
     };
